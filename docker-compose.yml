@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+    prod:
+        container_name: outreach_app
+        image: outreach_app:1.0.0
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        command: npm run start:dev
+        ports:
+            - 3000:3000
+        networks:
+            - nesjs-network
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+
+networks:
+    nesjs-network:
