@@ -94,7 +94,7 @@ export class UsersController {
   })
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
-  @ApiOkResponse({status: 204, description: 'User object'})
+  @ApiOkResponse({status: 204, description: 'Delete user successfull'})
   async delete(@Param() { id }: ParamsWithId, @Request() req , @Res() res: Response): Promise<any> {
     console.log(req.user.id);
     try {
@@ -107,13 +107,14 @@ export class UsersController {
     res.status(204).send();
   }
 
-  @Get('test-send-email')
-  @ApiParam({
+  @Get('/test/sendemail')
+  @ApiQuery({
     name: 'email'
   })
+  @ApiOkResponse({status: 204, description: 'Send mail success'})
   async email(@Query('email') email, @Res() res: Response ) {
     const mail = await this.usersService.testMail(email);
     console.log(mail);
-    res.status(204).send();
+    res.status(204).send({});
   }
 }

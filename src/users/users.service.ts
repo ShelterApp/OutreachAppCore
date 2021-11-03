@@ -45,9 +45,8 @@ export class UsersService {
         .sort([sort])
         .skip(skip)
         .limit(limit),
-      this.userModel.countDocuments(conditions)
+      this.userModel.count(conditions)
     ]);
-    
     return [result, total];
   }
 
