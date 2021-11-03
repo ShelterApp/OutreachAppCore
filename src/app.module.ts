@@ -7,22 +7,46 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { RolesGuard } from './auth/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { AppService } from './app.service';
+import * as normalize from 'normalize-mongoose';
 @Module({
   imports: [
     EnvConfig,
-    UsersModule,
     AuthModule,
+    UsersModule,
     OrganizationsModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        ...configService.get('database')
+        uri: configService.get('mongodb.uri'),
+        connectionFactory: (connection) => {
+          return connection;
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => ({
+        transport: configService.get('mailer.transport'),
+        defaults: {
+          from: configService.get('from'),
+        },
+        preview: false,
+        template: {
+          dir: __dirname + '/templates',
+          adapter: new PugAdapter(),
+          options: {
+            strict: true,
+          },
+        },
       }),
       inject: [ConfigService],
     }),
   ],
   providers: [
-
+    AppService
   ],
 })
 export class AppModule { }

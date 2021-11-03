@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import * as mongoose from 'mongoose';
-import { UserRole, UserVerify } from 'src/enum';
+import { UserRole, UserVerify } from '../../enum';
 import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { Organization } from 'src/organizations/schema/organization.schema';
+import { Organization } from '../../organizations/schema/organization.schema';
+import { ExcludeProperty } from 'nestjs-mongoose-exclude';
 
 export type UserDocument = User & Document;
 
@@ -20,7 +21,7 @@ export class User {
     email: string;
 
     @Prop({type: String})
-    @Exclude()
+    @ExcludeProperty()
     password: string;
 
     @Prop({type: String, default: UserRole.Volunteer})

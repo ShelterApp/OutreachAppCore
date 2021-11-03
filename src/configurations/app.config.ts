@@ -7,8 +7,12 @@ export default () => ({
             expiresIn: process.env.JWT_EXPIRES_IN
         }
     },
+    email_confirmation_url: 'https://google.com',
     mailer: {
-        transport: '',
-        from: ''
+        transport: 'smtps://OutreachWebApp@gmail.com:OutreachApp@2022@smtp.gmail.com',
+        from: '"OutreachApp" <noreply@outreachapp.org>'
+    },
+    mongodb: {
+        uri: process.env.MONGO_URI
     }
 });

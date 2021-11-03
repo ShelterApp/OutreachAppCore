@@ -5,7 +5,7 @@ export const LoginSchema ={
             properties: {
                 username: { // the `user` word comes from @Body('user')
                     type: "string",
-                    example: 'outstreach@gmail.com'
+                    example: 'abc@gmail.com'
                 },
                 password: {
                     type: "string",
@@ -60,7 +60,7 @@ export const VerifyToken = {
             properties: {
                 email: {
                     type: "string",
-                    example: 'outstreach@gmail.com'
+                    example: 'abc@gmail.com'
                 },
             },
         },

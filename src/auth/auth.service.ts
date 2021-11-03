@@ -1,22 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UseInterceptors } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserRole, UserVerify } from 'src/enum';
-import { User, UserDocument } from 'src/users/schema/user.schema';
+import { UserRole, UserVerify } from '../enum';
+import { User, UserDocument } from '../users/schema/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { MailerService } from '@nestjs-modules/mailer';
+import { OrganizationsService } from '../organizations/organizations.service';
+import { UsersService } from '../users/users.service';
+
+interface VerificationTokenPayload {
+    email: string;
+}
+
+export default VerificationTokenPayload;
 @Injectable()
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
-        @InjectModel(User.name) private userModel: Model<UserDocument>,
-        private configService: ConfigService
+        private readonly organizationsService: OrganizationsService,
+        private readonly usersService: UsersService,
+        private configService: ConfigService,
+        private mailService: MailerService,
     ) { }
 
     async validateUser(email: string, password: string): Promise<any> {
-        const user = await this.findByEmail(email);
+        const user = await this.usersService.findByEmail(email);
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
@@ -28,51 +39,85 @@ export class AuthService {
 
     async login(user: any) {
         const payload = { name: user.name, email: user.email, id: user.id, userType: user.userType }
-
         return {
             access_token: this.jwtService.sign(payload),
+            user: user
         }
     }
-
-    async register(createUserDto: CreateUserDto): Promise<User> {
-        createUserDto.password = await this.hashPassword(createUserDto.password);
-        //Force type is user
-        createUserDto.userType = UserRole.Volunteer;
-        createUserDto.isVerify = UserVerify.Unverified;
-        const user = await this.userModel.create(createUserDto);
-
+    
+    async register(createUserDto: CreateUserDto) {
+        const user = await this.usersService.create(createUserDto);
+       
         return user;
-
     }
 
-    async findByEmail(email: string): Promise<User | undefined> {
-        const user = await this.userModel.findOne({ email: email });
+    async findById(id: string): Promise<User | null> {
+        const user = await this.usersService.findById(id);
         if (user) {
             return user;
         }
         return null;
     }
 
-    async findById(id: string): Promise<User | undefined> {
-        const user = await this.userModel.findOne({ _id: id });
-        if (user) {
-            return user;
+    async sendEmailVerification(email: string): Promise<any> {
+        const payload: VerificationTokenPayload = { email };
+        const token = this.jwtService.sign(payload, {
+            secret: this.configService.get('jwt').secret,
+            expiresIn: `1d`
+        });
+
+        const url = `${this.configService.get('email_confirmation_url')}?token=${token}`;
+
+        const text = `Welcome to the application. To confirm the email address, click here: ${url}`;
+
+        return this.mailService.sendMail({
+            to: email,
+            from: this.configService.get('mailer').from,
+            subject: 'Email confirmation',
+            html: text,
+        })
+
+    }
+
+    public async confirmEmail(email: string) {
+        const user = await this.usersService.findByEmail(email);
+        if (user.isVerify) {
+            throw new BadRequestException('Email already confirmed');
         }
-        return null;
+        return await this.usersService.markEmailAsConfirmed(email);
     }
 
-    async hashPassword(password: string): Promise<string> {
-        const saltOrRounds = parseInt(this.configService.get<string>('saltOrRounds'))
-        const hash = bcrypt.hash(password, saltOrRounds);
+    public async decodeConfirmationToken(token: string) {
+        try {
+            const payload = await this.jwtService.verify(token, {
+                secret: this.configService.get('jwt').secret,
+            });
 
-        return hash;
+            if (typeof payload === 'object' && 'email' in payload) {
+                return payload.email;
+            }
+            throw new BadRequestException();
+        } catch (error) {
+            if (error?.name === 'TokenExpiredError') {
+                throw new BadRequestException('Email confirmation token expired');
+            }
+            throw new BadRequestException('Bad confirmation token');
+        }
     }
 
-    private checkValidToken(timestamp: Date) {
-        return (new Date().getTime() - timestamp.getTime()) / 60000 < 15;
+    public async validateUserEmailExsist(email) {
+        const user = await this.usersService.findByEmail(email);
+        if (user) {
+            return false;
+        }
+        return true;
     }
 
-    private generateToken() {
-        return (Math.floor(Math.random() * (900000)) + 100000).toString();
+    public async validateOrgValid(code) {
+        const user = await this.organizationsService.findByCode(code);
+        if (!user) {
+            return false;
+        }
+        return true;
     }
 }

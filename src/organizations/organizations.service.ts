@@ -6,7 +6,7 @@ import { UpdateOriganizationDto } from './dto/update-organization.dto';
 import { Organization, OrganizationDocument } from './schema/organization.schema';
 import {SoftDeleteModel} from "soft-delete-plugin-mongoose";
 import Helpers from "../utils/helper";
-import { OrganizationStatus } from 'src/enum';
+import { OrganizationStatus } from '../enum';
 @Injectable()
 export class OrganizationsService {
     constructor(
@@ -23,12 +23,14 @@ export class OrganizationsService {
         return createOriganization;
     }
 
-    findAll() {
+    public findAll() {
         return this.organizationModel.find().exec();
     }
+    
+    public findByCode(code: string) {
+        const org = this.organizationModel.findOne({code: code, status: OrganizationStatus.Enabled})
 
-    findOne(id: string) {
-        return this.organizationModel.findById(id);
+        return org;
     }
 
     update(id: string, updateOriganizationDto: UpdateOriganizationDto) {
