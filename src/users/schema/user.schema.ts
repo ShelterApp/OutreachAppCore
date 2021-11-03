@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
-import * as mongoose from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { UserRole, UserVerify } from '../../enum';
 import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Organization } from '../../organizations/schema/organization.schema';
@@ -11,16 +11,16 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null })
+    @Prop({ type: Types.ObjectId, ref: 'Organization', default: null })
     organization: Organization;
 
-    @Prop({type: String})
+    @Prop({type: String, required: true})
     name: string;
 
-    @Prop({type: String})
+    @Prop({type: String, required: true})
     email: string;
 
-    @Prop({type: String})
+    @Prop({type: String, required: true})
     @ExcludeProperty()
     password: string;
 
@@ -38,6 +38,9 @@ export class User {
 
     @Prop({ type: Date, default: Date.now() })
     updatedAt: Date;
+
+    @Prop({ type: Date, default: null })
+    lastedLoginAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User).plugin(softDeletePlugin);

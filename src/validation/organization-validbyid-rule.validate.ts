@@ -3,13 +3,13 @@ import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorCon
 import { OrganizationsService } from "src/organizations/organizations.service";
 import { AuthService } from "../auth/auth.service";
 
-@ValidatorConstraint({ name: 'OrganizationValid', async: true })
+@ValidatorConstraint({ name: 'OrganizationValidById', async: true })
 @Injectable()
-export class OrganizationValidRule implements ValidatorConstraintInterface {
+export class OrganizationValidByIdRule implements ValidatorConstraintInterface {
   constructor(private readonly organizationsService: OrganizationsService) { }
 
   async validate(value: string) {
-    const user = await this.organizationsService.findByCode(value);
+    const user = await this.organizationsService.findById(value);
     if (!user) {
       return false;
     }
@@ -17,18 +17,18 @@ export class OrganizationValidRule implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `${args.property} invalid`;
+    return `${args.property}_invalid`;
   }
 }
 
-export function OrganizationValid(validationOptions?: ValidationOptions) {
+export function OrganizationValidById(validationOptions?: ValidationOptions) {
   return function (object: any, propertyName: string) {
     registerDecorator({
-      name: 'OrganizationValid',
+      name: 'OrganizationValidById',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      validator: OrganizationValidRule,
+      validator: OrganizationValidByIdRule,
     });
   };
 }

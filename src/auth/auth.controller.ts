@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { UserRole, UserVerify } from 'src/enum';
 import { LoginSchema, RegisterSchema, ResendEmailVerification, VerifyToken } from './swagger-schema';
 import { User } from 'src/users/schema/user.schema';
@@ -31,7 +31,7 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'object user'})
     @ApiBadRequestResponse({ status: 400, description: 'Bad request'})
     @ApiUnprocessableEntityResponse({ status: 422, description: 'Unprocessable Entity'})
-    async register(@Body() registerUser: CreateUserDto): Promise<any> {
+    async register(@Body() registerUser: RegisterUserDto): Promise<any> {
         const user = await this.authService.register(registerUser);
         await this.authService.sendEmailVerification(user.email);
 

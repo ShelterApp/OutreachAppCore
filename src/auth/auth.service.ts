@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UseInterceptors } from '@nestjs/common
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { UserRole, UserVerify } from '../enum';
 import { User, UserDocument } from '../users/schema/user.schema';
 import { Model } from 'mongoose';
@@ -31,6 +31,7 @@ export class AuthService {
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
+                await this.usersService.markLastedLogin(user._id);
                 return user;
             }
         }
@@ -45,8 +46,11 @@ export class AuthService {
         }
     }
     
-    async register(createUserDto: CreateUserDto) {
-        const user = await this.usersService.create(createUserDto);
+    async register(createUserDto: RegisterUserDto) {
+        // Find org by code
+        const org = await this.organizationsService.findByCode(createUserDto.orgCode);
+        createUserDto.organization = org;
+        const user = await this.usersService.register(createUserDto);
        
         return user;
     }

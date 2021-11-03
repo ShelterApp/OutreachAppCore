@@ -1,6 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnprocessableEntityResponse, getSchemaPath } from '@nestjs/swagger';
-import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -32,14 +32,14 @@ export class OrganizationsController {
     const org = await this.organizationsService.create(createOriganizationDto);
     if (org) {
       // Create user lead from org
-      const createUserDto = new CreateUserDto();
+      const createUserDto = new RegisterUserDto();
       createUserDto.organization = org;
       createUserDto.email = org.email;
       createUserDto.name = org.name;
       createUserDto.phone = org.phone;
       createUserDto.userType = UserRole.OrgLead;
       createUserDto.password = Helpers.randomString(10);
-      await this.usersService.create(createUserDto);
+      await this.usersService.register(createUserDto);
     }
 
     return org;

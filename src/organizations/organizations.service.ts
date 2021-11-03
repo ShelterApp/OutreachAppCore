@@ -33,6 +33,12 @@ export class OrganizationsService {
         return org;
     }
 
+    public findById(id: string) {
+        const org = this.organizationModel.findById(id);
+
+        return org;
+    }
+
     update(id: string, updateOriganizationDto: UpdateOriganizationDto) {
         const filter = { _id: id };
         return this.organizationModel.updateOne(filter, updateOriganizationDto);

@@ -15,7 +15,7 @@ async function bootstrap() {
     .addTag('api')
     .addBearerAuth()
     .build();
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({transform: true}));
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
   

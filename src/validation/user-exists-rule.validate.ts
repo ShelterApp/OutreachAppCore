@@ -16,7 +16,7 @@ export class UserExistsRule implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `${args.property}_was_exsist`;
+    return `${args.property} was exsist`;
   }
 }
 
