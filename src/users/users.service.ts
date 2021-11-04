@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserRole, UserVerify } from '../enum';
+import { UserRole, UserStatus, UserVerify } from '../enum';
 import { User, UserDocument } from './schema/user.schema';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { ChangePasswordDto } from '../profile/dto/change-password.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -51,13 +52,45 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-      const user = await this.userModel.findByIdAndUpdate(id, updateUserDto).setOptions({ new: true });
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto).setOptions({ new: true });
 
-      if (!user) {
-        throw new NotFoundException();
-      }
+    if (!user) {
+      throw new NotFoundException();
+    }
 
-      return user;
+    return user;
+  }
+
+  async changePassword(id: string, changePasswordDto: ChangePasswordDto ) {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('cannot found user');
+    }
+    const isMatch = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
+    if (isMatch) {
+        // Change password
+        try {
+          user.password = await this.hashPassword(changePasswordDto.newPassword);
+          user.save()
+        } catch(error) {
+          console.log(error);
+          throw new UnprocessableEntityException('cannot change password');
+        }
+    } else {
+      throw new BadRequestException('invalid old pasword');
+    }
+  }
+
+  async resetPassword(user, password): Promise<boolean> {
+    try {
+      user.password = await this.hashPassword(password);
+      user.save();
+
+      return true;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
   }
 
   async remove(id: string) {
@@ -65,7 +98,7 @@ export class UsersService {
 
     const deleted = await this.userModel.softDelete(filter);
     return deleted;
-}
+  }
 
   async findByEmail(email: string) {
     const user = await this.userModel.findOne({ email: email });
@@ -75,6 +108,10 @@ export class UsersService {
     return null;
   }
 
+  findById(id) {
+    return this.userModel.findById(id);
+  }
+
   async hashPassword(password: string): Promise<string> {
     const saltOrRounds = parseInt(this.configService.get<string>('saltOrRounds'))
     const hash = bcrypt.hash(password, saltOrRounds);
@@ -82,16 +119,20 @@ export class UsersService {
     return hash;
   }
 
-  findById(id) {
-    return this.userModel.findById(id);
-  }
-
   markEmailAsConfirmed(email: string) {
-    return this.userModel.updateOne({ email }, { '$set': {"isVerify" : UserVerify.Verified, "status": 1} })
+    return this.userModel.updateOne({ email }, { '$set': { "isVerify": UserVerify.Verified, "status": 1 } })
   }
 
   markLastedLogin(id: string) {
-    return this.userModel.updateOne({ _id: id }, { '$set': {"lastedLoginAt" :  Date.now()} })
+    return this.userModel.updateOne({ _id: id }, { '$set': { "lastedLoginAt": Date.now() } })
+  }
+
+  isActiveUser(user: User): boolean {
+    if (user.isVerify == UserVerify.Verified && user.status == UserStatus.Enabled) {
+      return true;
+    }
+
+    return false;
   }
 
   _buildConditions(query) {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UseInterceptors } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
+import ForgotPasswordDto from './dto/forgot-password.dto';
 
 interface VerificationTokenPayload {
     email: string;
@@ -83,8 +84,60 @@ export class AuthService {
 
     }
 
+    async sendForgotPasswordEmail(email: string): Promise<any> {
+
+        const user = await this.usersService.findByEmail(email);
+        if (!user || !this.usersService.isActiveUser(user)) {
+            throw new NotFoundException('cannot found user');
+        }
+
+        const payload: VerificationTokenPayload = { email };
+        const token = this.jwtService.sign(payload, {
+            secret: this.configService.get('jwt').secret + 'forgot_password',
+            expiresIn: `1d`
+        });
+
+        const url = `${this.configService.get('email_forgotpassword_url')}?token=${token}`;
+
+        const text = `Welcome to the application. forgot password, click here: ${url}`;
+
+        return this.mailService.sendMail({
+            to: email,
+            from: this.configService.get('mailer').from,
+            subject: 'Email for got password',
+            html: text,
+        })
+    }
+
+    async resetPassword(token: string, password: string) {
+        try {
+            const payload = await this.jwtService.verify(token, {
+                secret: this.configService.get('jwt').secret + 'forgot_password',
+            });
+
+            if (typeof payload === 'object' && 'email' in payload) {
+                const email = payload.email;
+                const user = await this.usersService.findByEmail(email);
+                if (!user || !this.usersService.isActiveUser(user)) {
+                    throw new NotFoundException('cannot found user');
+                }
+                return await this.usersService.resetPassword(user, password);
+            }
+            throw new BadRequestException();
+        } catch (error) {
+            if (error?.name === 'TokenExpiredError') {
+                throw new BadRequestException('email confirmation token expired');
+            }
+            throw new BadRequestException('bad confirmation token');
+        }
+    }
+
     public async confirmEmail(email: string) {
         const user = await this.usersService.findByEmail(email);
+        if (!user || !this.usersService.isActiveUser(user)) {
+            throw new NotFoundException('cannot found user');
+        }
+
         if (user.isVerify) {
             throw new BadRequestException('Email already confirmed');
         }
@@ -103,9 +156,9 @@ export class AuthService {
             throw new BadRequestException();
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
-                throw new BadRequestException('Email confirmation token expired');
+                throw new BadRequestException('email confirmation token expired');
             }
-            throw new BadRequestException('Bad confirmation token');
+            throw new BadRequestException('bad confirmation token');
         }
     }
 

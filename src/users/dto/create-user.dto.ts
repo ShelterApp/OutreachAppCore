@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional, Min, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole, UserStatus, UserVerify } from '../../enum';
 import { UserExists } from '../../validation/user-exists-rule.validate';
@@ -27,6 +27,7 @@ export class CreateUserDto {
 
     @IsString()
     @IsNotEmpty()
+    @MinLength(6)
     @ApiProperty({ example: "123456", description: 'The password of account', required: true })
     password: string;
 

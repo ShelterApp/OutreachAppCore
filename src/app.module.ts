@@ -10,7 +10,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { AppService } from './app.service';
+import { ProfileModule } from './profile/profile.module';
 import * as normalize from 'normalize-mongoose';
+console.log(__dirname)
 @Module({
   imports: [
     EnvConfig,
@@ -44,6 +46,7 @@ import * as normalize from 'normalize-mongoose';
       }),
       inject: [ConfigService],
     }),
+    ProfileModule,
   ],
   providers: [
     AppService
