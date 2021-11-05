@@ -33,7 +33,7 @@ export class OrganizationsController {
     if (org) {
       // Create user lead from org
       const createUserDto = new RegisterUserDto();
-      createUserDto.organization = org;
+      createUserDto.organizationId = org;
       createUserDto.email = org.email;
       createUserDto.name = org.name;
       createUserDto.phone = org.phone;

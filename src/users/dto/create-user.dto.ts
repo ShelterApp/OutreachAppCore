@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional, Min, MinLength } from 'class-validator';
+import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional, Min, MinLength, IsMongoId } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole, UserStatus, UserVerify } from '../../enum';
 import { UserExists } from '../../validation/user-exists-rule.validate';
@@ -7,7 +7,15 @@ import { OrganizationValidById } from '../../validation/organization-validbyid-r
 import { OrganizationValid } from 'src/validation/organization-valid-rule.validate';
 import { Organization } from 'src/organizations/schema/organization.schema';
 import { Type } from 'class-transformer';
+import { RegionValid } from 'src/validation/region-valid-rule.validate';
+import { Region } from 'src/regions/schema/region.schema';
 export class CreateUserDto {
+
+    @IsMongoId()
+    @IsNotEmpty()
+    @RegionValid()
+    @ApiProperty({ example: "", description: 'The city', required: true })
+    regionId: Region;
 
     @IsString()
     @IsNotEmpty()
@@ -57,5 +65,5 @@ export class CreateUserDto {
     status: number
 
     @IsOptional()
-    organization: Organization
+    organizationId: Organization
 }

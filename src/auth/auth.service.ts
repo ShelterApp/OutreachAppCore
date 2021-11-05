@@ -50,7 +50,7 @@ export class AuthService {
     async register(createUserDto: RegisterUserDto) {
         // Find org by code
         const org = await this.organizationsService.findByCode(createUserDto.orgCode);
-        createUserDto.organization = org;
+        createUserDto.organizationId = org;
         const user = await this.usersService.register(createUserDto);
        
         return user;
@@ -71,15 +71,15 @@ export class AuthService {
             expiresIn: `1d`
         });
 
-        const url = `${this.configService.get('email_confirmation_url')}?token=${token}`;
-
-        const text = `Welcome to the application. To confirm the email address, click here: ${url}`;
-
         return this.mailService.sendMail({
             to: email,
             from: this.configService.get('mailer').from,
-            subject: 'Email confirmation',
-            html: text,
+            subject: 'Register account for OutreachApp',
+            template: './welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+            context: {
+                url: this.configService.get('email_confirmation_url'),
+                token: token
+            },
         })
 
     }
@@ -97,15 +97,16 @@ export class AuthService {
             expiresIn: `1d`
         });
 
-        const url = `${this.configService.get('email_forgotpassword_url')}?token=${token}`;
-
-        const text = `Welcome to the application. forgot password, click here: ${url}`;
-
         return this.mailService.sendMail({
             to: email,
             from: this.configService.get('mailer').from,
-            subject: 'Email for got password',
-            html: text,
+            subject: 'Reset your password for OutreachApp',
+            template: './forgotpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+            context: {
+                url: this.configService.get('email_forgotpassword_url'),
+                email: email,
+                token: token
+            },
         })
     }
 
@@ -123,12 +124,12 @@ export class AuthService {
                 }
                 return await this.usersService.resetPassword(user, password);
             }
-            throw new BadRequestException();
+            throw new BadRequestException('bad reset password token');
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
-                throw new BadRequestException('email confirmation token expired');
+                throw new BadRequestException('email reset password token expired');
             }
-            throw new BadRequestException('bad confirmation token');
+            throw new BadRequestException('bad reset password token');
         }
     }
 
@@ -139,7 +140,7 @@ export class AuthService {
         }
 
         if (user.isVerify) {
-            throw new BadRequestException('Email already confirmed');
+            throw new BadRequestException('email already confirmed');
         }
         return await this.usersService.markEmailAsConfirmed(email);
     }
@@ -153,7 +154,7 @@ export class AuthService {
             if (typeof payload === 'object' && 'email' in payload) {
                 return payload.email;
             }
-            throw new BadRequestException();
+            throw new BadRequestException('bad confirmation token');
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
                 throw new BadRequestException('email confirmation token expired');

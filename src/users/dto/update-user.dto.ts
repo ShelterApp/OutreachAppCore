@@ -5,7 +5,15 @@ import { Organization } from '../../organizations/schema/organization.schema';
 import { OrganizationValid } from '../../validation/organization-valid-rule.validate';
 import { UserExists } from '../../validation/user-exists-rule.validate';
 import { OrganizationValidById } from 'src/validation/organization-validbyid-rule.validate';
+import { RegionValid } from 'src/validation/region-valid-rule.validate';
+import { Region } from 'src/regions/schema/region.schema';
 export class UpdateUserDto {
+
+    @IsMongoId()
+    @IsNotEmpty()
+    @RegionValid()
+    @ApiProperty({ example: "", description: 'The city', required: false })
+    regionId: Region;
 
     @IsString()
     @IsNotEmpty()
@@ -36,5 +44,5 @@ export class UpdateUserDto {
     @IsOptional()
     @IsMongoId()
     @OrganizationValidById()
-    organization: Organization
+    organizationId: Organization
 }

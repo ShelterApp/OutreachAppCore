@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -8,11 +9,12 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { RolesGuard } from './auth/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AppService } from './app.service';
 import { ProfileModule } from './profile/profile.module';
+import { RegionsModule } from './regions/regions.module';
 import * as normalize from 'normalize-mongoose';
-console.log(__dirname)
+console.log(process.env.PWD)
 @Module({
   imports: [
     EnvConfig,
@@ -37,16 +39,25 @@ console.log(__dirname)
         },
         preview: false,
         template: {
-          dir: __dirname + '/templates',
-          adapter: new PugAdapter(),
+          dir: path.join(__dirname, 'templates/pages'),
+          adapter: new HandlebarsAdapter(),
           options: {
-            strict: true,
+            strict: false,
+          },
+        },
+        options: {
+          partials: {
+            dir: path.join(__dirname, 'templates/partials'),
+            options: {
+              strict: false,
+            },
           },
         },
       }),
       inject: [ConfigService],
     }),
     ProfileModule,
+    RegionsModule,
   ],
   providers: [
     AppService

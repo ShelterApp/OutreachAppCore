@@ -50,7 +50,7 @@ export class AuthController {
     }
 
     @Post('forgot-password')
-    @ApiOperation({ summary: 'Register users' })
+    @ApiOperation({ summary: 'Forgot password' })
     @ApiResponse({ status: 204, description: 'no content'})
     @ApiBadRequestResponse({ status: 400, description: 'Bad request'})
     @ApiUnprocessableEntityResponse({ status: 422, description: 'Unprocessable Entity'})
@@ -60,7 +60,7 @@ export class AuthController {
     }
 
     @Post('reset-password')
-    @ApiOperation({ summary: 'Register users' })
+    @ApiOperation({ summary: 'Reset password' })
     @ApiResponse({ status: 204, description: 'no content'})
     @ApiBadRequestResponse({ status: 400, description: 'Bad request'})
     @ApiUnprocessableEntityResponse({ status: 422, description: 'Unprocessable Entity'})

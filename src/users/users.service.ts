@@ -55,7 +55,7 @@ export class UsersService {
     const user = await this.userModel.findByIdAndUpdate(id, updateUserDto).setOptions({ new: true });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('error when update user');
     }
 
     return user;
@@ -73,7 +73,6 @@ export class UsersService {
           user.password = await this.hashPassword(changePasswordDto.newPassword);
           user.save()
         } catch(error) {
-          console.log(error);
           throw new UnprocessableEntityException('cannot change password');
         }
     } else {
@@ -160,8 +159,10 @@ export class UsersService {
           to: email || 'nnluong.dev@gmail.com', // list of receivers
           from: this.configService.get('mailer').from, // sender address
           subject: 'Outreach Test Mailer ✔', // Subject line
-          text: 'welcome', // plaintext body
-          html: '<b>welcome</b>', // HTML body content
+          template: './welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+          context: {
+            code: 'cf1a3f828287'
+          },
         });
       return sendMail;
     } catch (error) {

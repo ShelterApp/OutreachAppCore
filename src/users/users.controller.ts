@@ -30,6 +30,7 @@ export class UsersController {
   })
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({status: 200, description: 'User object'})
   async findOne(@Param() { id }: ParamsWithId,) {
     const user = await this.usersService.findById(id);
@@ -39,6 +40,7 @@ export class UsersController {
   @Get()
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Get list users' })
   @ApiOkResponse({status: 200, description: 'List users'})
   async find(@Query() { skip, limit }: PaginationParams) {
     console.log(typeof limit);
@@ -52,10 +54,11 @@ export class UsersController {
   @Post()
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Admin or lead create user' })
   @ApiOkResponse({status: 200, description: 'Create user'})
   async create(@Body() createUserDto: CreateUserDto): Promise<any> {
     const org = await this.organizationsService.findByCode(createUserDto.orgCode);
-    createUserDto.organization = org;
+    createUserDto.organizationId = org;
     delete createUserDto.orgCode;
     const user = await this.usersService.create(createUserDto);
 
@@ -68,6 +71,7 @@ export class UsersController {
   })
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Update user information' })
   @ApiOkResponse({status: 200, description: 'User object'})
   async update(@Param() { id }: ParamsWithId, @Body() updateUserDto: UpdateUserDto): Promise<any> {
     const user = await this.usersService.update(id, updateUserDto);
@@ -81,6 +85,7 @@ export class UsersController {
   })
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Update user information' })
   @ApiOkResponse({status: 200, description: 'User object'})
   async patch(@Param() { id }: ParamsWithId, @Body() updateUserDto: UpdateUserDto): Promise<any> {
     const user = await this.usersService.update(id, updateUserDto);
@@ -94,6 +99,7 @@ export class UsersController {
   })
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiOperation({ summary: 'Delete user by id' })
   @ApiOkResponse({status: 204, description: 'Delete user successfull'})
   async delete(@Param() { id }: ParamsWithId, @Request() req , @Res() res: Response): Promise<any> {
     console.log(req.user.id);
@@ -102,7 +108,7 @@ export class UsersController {
       const user = await this.usersService.remove(id);
     } catch(error) {
       console.log(error);
-      throw new UnprocessableEntityException();
+      throw new UnprocessableEntityException('error when remove user');
     }
     res.status(204).send();
   }
