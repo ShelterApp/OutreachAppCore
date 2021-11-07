@@ -1,16 +1,14 @@
-import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional, MinLength, IsMongoId } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRole, UserVerify } from '../../enum';
+import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, IsOptional, MinLength, IsMongoId, ValidationArguments, MaxLength } from 'class-validator';
+import { ApiBadRequestResponse, ApiProperty } from '@nestjs/swagger';
 import { Organization } from '../../organizations/schema/organization.schema';
 import { OrganizationValid } from '../../validation/organization-valid-rule.validate';
 import { UserExists } from '../../validation/user-exists-rule.validate';
-import { RegionValid } from 'src/validation/region-valid-rule.validate';
+import { RegionValid } from '../../validation/region-valid-rule.validate';
 import { Region } from 'src/regions/schema/region.schema';
 export class RegisterUserDto {
 
     @IsMongoId()
     @IsNotEmpty()
-    @RegionValid()
     @ApiProperty({ example: "", description: 'The city', required: true })
     regionId: Region;
 
@@ -20,6 +18,8 @@ export class RegisterUserDto {
     name: string;
 
     @IsString()
+    @MinLength(8)
+    @MaxLength(12)
     @ApiProperty({ example: "099999999", description: 'The phone of person', required: true })
     phone: string;
 

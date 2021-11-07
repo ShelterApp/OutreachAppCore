@@ -8,6 +8,7 @@ export class CreateRegionDto {
     @IsNotEmpty()
     @IsMongoId()
     @RegionValid()
+    @IsOptional()
     @ApiProperty({ example: null, description: 'The name of region', required: false })
     parentId: Region;
 

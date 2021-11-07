@@ -1,0 +1,44 @@
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+export class ValidateResponse {
+  statusCode: number
+  message: any
+  error: string
+}
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const mes = exception instanceof HttpException
+      ? exception.getResponse() as ValidateResponse
+      : new ValidateResponse();
+
+    response.status(status).json({
+      statusCode: status,
+      message: (typeof mes.message == 'string') ? this.getMessage(mes.message) : this.getMessage(mes.message[0]),
+      timestamp: new Date().toISOString(),
+      error: mes.error,
+    });
+  }
+
+  getMessage(message: string) {
+    let result = message.toLowerCase().replace(/\s/g, '_');
+
+    if (result.indexOf('must_be_a_mongodb_id') !== -1) {
+      result = result.replace('must_be_a_mongodb_id', 'invalid');
+    }
+
+    return result;
+  }
+}

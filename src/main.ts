@@ -1,7 +1,8 @@
 import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import { AllExceptionsFilter } from './all-exceptions-filter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -15,7 +16,9 @@ async function bootstrap() {
     .addTag('api')
     .addBearerAuth()
     .build();
-  app.useGlobalPipes(new ValidationPipe({transform: true, skipMissingProperties: true}));
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(new ValidationPipe({transform: true, stopAtFirstError: true}));
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
   

@@ -1,5 +1,8 @@
-import { Body, ClassSerializerInterceptor, Controller, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnprocessableEntityResponse, getSchemaPath } from '@nestjs/swagger';
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnprocessableEntityResponse, getSchemaPath } from '@nestjs/swagger';
+import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
+import { PaginationParams } from 'src/utils/pagination-params';
+import ParamsWithId from 'src/utils/params-with-id';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -14,6 +17,7 @@ import { CreateOrganizationSchema } from './swagger-schema';
 
 @ApiTags('Organizations')
 @Controller('organizations')
+@UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
 export class OrganizationsController {
   constructor(
     private readonly organizationsService: OrganizationsService,
@@ -44,4 +48,27 @@ export class OrganizationsController {
 
     return org;
   }
+
+  @Get()
+  @ApiOperation({ summary: 'Get list organization' })
+  @ApiOkResponse({status: 200, description: 'Region list'})
+  async find(@Query() { skip, limit }: PaginationParams) {
+    const [items, total] = await this.organizationsService.findAll({}, skip, limit);
+    return {
+      items,
+      total
+    };
+  }
+
+
+  @Get(':id')
+  @ApiParam({
+    name: 'id'
+  })
+  @ApiOperation({ summary: 'Get organization by id' })
+  @ApiOkResponse({status: 200, description: 'Organization object'})
+  async findOne(@Param() { id }: ParamsWithId): Promise<any> {
+    return await this.organizationsService.findOne(id);
+  }
+
 }

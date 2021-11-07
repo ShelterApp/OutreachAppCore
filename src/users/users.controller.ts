@@ -57,9 +57,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Admin or lead create user' })
   @ApiOkResponse({status: 200, description: 'Create user'})
   async create(@Body() createUserDto: CreateUserDto): Promise<any> {
-    const org = await this.organizationsService.findByCode(createUserDto.orgCode);
-    createUserDto.organizationId = org;
-    delete createUserDto.orgCode;
     const user = await this.usersService.create(createUserDto);
 
     return user;

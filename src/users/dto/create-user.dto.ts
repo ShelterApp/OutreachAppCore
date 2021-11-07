@@ -39,11 +39,11 @@ export class CreateUserDto {
     @ApiProperty({ example: "123456", description: 'The password of account', required: true })
     password: string;
 
-    @IsString()
+    @IsMongoId()
     @IsNotEmpty()
-    @OrganizationValid()
-    @ApiProperty({ example: "000111", description: 'The code of orgnazation', required: true })
-    orgCode: string;
+    @OrganizationValidById()
+    @ApiProperty({ example: "mongo id", description: 'The id of orgnazation', required: true })
+    organizationId: Organization
     
     @IsString()
     @IsNotEmpty()
@@ -52,9 +52,8 @@ export class CreateUserDto {
     
 
     @IsNumber()
-    @IsNotEmpty()
     @Type(() => Number)
-    @ApiProperty({ example: 1, type: 'number', description: 'Is verify email?', required: true })
+    @IsOptional()
     isVerify: number
 
 
@@ -63,7 +62,4 @@ export class CreateUserDto {
     @Type(() => Number)
     @ApiProperty({ type: 'enum', example: 1, description: 'Status of user', required: true })
     status: number
-
-    @IsOptional()
-    organizationId: Organization
 }

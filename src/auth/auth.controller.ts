@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Request, Body, UseInterceptors, Res, HttpStatus, UnprocessableEntityException } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Body, UseInterceptors, Res, HttpStatus, UnprocessableEntityException, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Response } from 'express';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
@@ -40,7 +40,7 @@ export class AuthController {
 
     @Post('confirm-email')
     @ApiOperation({ summary: 'Confirm Email' })
-    @ApiResponse({ status: 203, description: 'no content.'})
+    @ApiResponse({ status: 204, description: 'no content.'})
     @ApiBadRequestResponse({ status: 400, description: 'The email confirm error.'})
     @ApiUnprocessableEntityResponse({ status: 422, description: 'Parameter invalid.'})
     async confirm(@Body() confirmationDataDto: ConfirmEmailDto, @Res() res: Response) {

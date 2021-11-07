@@ -17,7 +17,7 @@ export class RegionsService {
       return await this.regionModel.create(createRegionDto);
     } catch(error) {
       console.log(error);
-      throw new BadRequestException('error when create region');
+      throw new BadRequestException('error_when_create_region');
     }
   }
 
@@ -38,7 +38,7 @@ export class RegionsService {
   async findOne(id: string) {
     const region = await this.regionModel.findById(id);
     if (!region) {
-      throw new NotFoundException('cannot found region');
+      throw new NotFoundException('cannot_found_region');
     }
     return region;
   }
@@ -47,13 +47,13 @@ export class RegionsService {
     // Check unique code
     const check = await this.regionModel.findOne({code: updateRegionDto.code, _id: {$ne: id}});
     if (check) {
-      throw new BadRequestException(['code is exsist']);
+      throw new BadRequestException('code_is_exsist');
     }
 
     const region = await this.regionModel.findByIdAndUpdate(id, updateRegionDto).setOptions({ new: true });
 
     if (!region) {
-      throw new BadRequestException('cannot update region');
+      throw new BadRequestException('cannot_update_region');
     }
 
     return region;

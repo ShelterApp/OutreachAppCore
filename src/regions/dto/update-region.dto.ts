@@ -8,7 +8,7 @@ export class UpdateRegionDto {
     @IsNotEmpty()
     @IsMongoId()
     @RegionValid()
-    @ApiProperty({ example: null, description: 'The name of region', required: true })
+    @IsOptional()
     parentId: Region;
 
     @IsString()

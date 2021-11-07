@@ -3,14 +3,10 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { UserRole, UserVerify } from '../enum';
 import { User, UserDocument } from '../users/schema/user.schema';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
-import ForgotPasswordDto from './dto/forgot-password.dto';
 
 interface VerificationTokenPayload {
     email: string;
@@ -124,23 +120,23 @@ export class AuthService {
                 }
                 return await this.usersService.resetPassword(user, password);
             }
-            throw new BadRequestException('bad reset password token');
+            throw new BadRequestException('bad_reset_password_token');
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
-                throw new BadRequestException('email reset password token expired');
+                throw new BadRequestException('email_reset_password_token_expired');
             }
-            throw new BadRequestException('bad reset password token');
+            throw new BadRequestException('bad_reset_password_token');
         }
     }
 
     public async confirmEmail(email: string) {
         const user = await this.usersService.findByEmail(email);
         if (!user || !this.usersService.isActiveUser(user)) {
-            throw new NotFoundException('cannot found user');
+            throw new NotFoundException('cannot_found_user');
         }
 
         if (user.isVerify) {
-            throw new BadRequestException('email already confirmed');
+            throw new BadRequestException('email_already_confirmed');
         }
         return await this.usersService.markEmailAsConfirmed(email);
     }
@@ -154,12 +150,12 @@ export class AuthService {
             if (typeof payload === 'object' && 'email' in payload) {
                 return payload.email;
             }
-            throw new BadRequestException('bad confirmation token');
+            throw new BadRequestException('bad_confirmation_token');
         } catch (error) {
             if (error?.name === 'TokenExpiredError') {
-                throw new BadRequestException('email confirmation token expired');
+                throw new BadRequestException('email_confirmation_token_expired');
             }
-            throw new BadRequestException('bad confirmation token');
+            throw new BadRequestException('bad_confirmation_token');
         }
     }
 

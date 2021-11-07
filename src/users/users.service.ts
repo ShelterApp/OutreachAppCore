@@ -30,8 +30,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.hashPassword(createUserDto.password);
-    createUserDto.userType = UserRole.Volunteer;
-    createUserDto.isVerify = UserVerify.Unverified;
+    createUserDto.isVerify = UserVerify.Verified;
     const user = this.userModel.create(createUserDto);
 
     return user;
@@ -55,7 +54,7 @@ export class UsersService {
     const user = await this.userModel.findByIdAndUpdate(id, updateUserDto).setOptions({ new: true });
 
     if (!user) {
-      throw new NotFoundException('error when update user');
+      throw new UnprocessableEntityException('error_when_update_user');
     }
 
     return user;
@@ -64,7 +63,7 @@ export class UsersService {
   async changePassword(id: string, changePasswordDto: ChangePasswordDto ) {
     const user = await this.userModel.findById(id);
     if (!user) {
-      throw new NotFoundException('cannot found user');
+      throw new NotFoundException('cannot_found_user');
     }
     const isMatch = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
     if (isMatch) {
@@ -73,10 +72,10 @@ export class UsersService {
           user.password = await this.hashPassword(changePasswordDto.newPassword);
           user.save()
         } catch(error) {
-          throw new UnprocessableEntityException('cannot change password');
+          throw new UnprocessableEntityException('cannot_change_password');
         }
     } else {
-      throw new BadRequestException('invalid old pasword');
+      throw new BadRequestException('invalid_old_pasword');
     }
   }
 
