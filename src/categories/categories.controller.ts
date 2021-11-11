@@ -22,15 +22,15 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create new region' })
-  @ApiOkResponse({status: 200, description: 'Region object'})
+  @ApiOperation({ summary: 'Create new category' })
+  @ApiOkResponse({status: 200, description: 'category object'})
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return await this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get list region' })
-  @ApiOkResponse({status: 200, description: 'Region list'})
+  @ApiOperation({ summary: 'Get list category' })
+  @ApiOkResponse({status: 200, description: 'category list'})
   async find() {
     const [items, total] = await this.categoriesService.findAll({});
     return {
@@ -46,8 +46,8 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'update region' })
-  @ApiOkResponse({status: 200, description: 'Region object'})
+  @ApiOperation({ summary: 'update category' })
+  @ApiOkResponse({status: 200, description: 'category object'})
   async update(@Param() { id }: ParamsWithId, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
@@ -59,7 +59,7 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'delete region' })
+  @ApiOperation({ summary: 'delete category' })
   @ApiOkResponse({status: 204, description: 'No content'})
   async remove(@Param() { id }: ParamsWithId, @Res() res: Response): Promise<void> {
     await this.categoriesService.remove(id);

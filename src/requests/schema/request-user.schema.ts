@@ -45,19 +45,19 @@ export class RequestUser {
     @Prop({ type: String, required: true })
     phone: string;
 
-    @Prop({ type: String, required: false })
+    @Prop({ type: String, required: false, default: null })
     note: string;
 
     @Prop({ type: Cate, required: false, default: null })
     cate: Cate;
 
-    @Prop({ type: String, required: false })
+    @Prop({ type: String, required: false, default: null })
     address: string;
 
-    @Prop({type: Number, required: false})
+    @Prop({type: Number, required: false, default: 0})
     lat: number;
 
-    @Prop({type: Number, required: false})
+    @Prop({type: Number, required: false, default: 0})
     lng: number;
 }
 

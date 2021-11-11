@@ -13,19 +13,19 @@ export class Request {
     @Prop({type: String, required: true})
     name: string;
 
-    @Prop({type: String, required: false})
+    @Prop({type: String, required: false, default: null})
     description: string;
 
     @Prop({type: Number, required: true})
     type: RequestType;
 
-    @Prop({ type: String, required: false })
+    @Prop({ type: String, required: false, default: null })
     address: string;
 
-    @Prop({type: Number, required: false})
+    @Prop({type: Number, required: false, default: 0})
     lat: number;
 
-    @Prop({type: Number, required: false})
+    @Prop({type: Number, required: false, default: 0})
     lng: number;
 
     @Prop({type: Number, default: 1})

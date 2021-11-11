@@ -1,23 +1,26 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { Type } from "class-transformer";
+import { IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from "class-validator";
 import { Category } from "../../categories/shema/category.schema";
 
 export class CateDto {
     @IsMongoId()
+    @IsNotEmpty()
     @ApiProperty({ example: "", description: 'Parent Category Id', required: false })
     parentCateId: Category;
   
     @IsString()
+    @IsNotEmpty()
     @ApiProperty({ example: "", description: 'Parent Category Cate', required: false })
     parentCateName: string;
   
     @IsMongoId()
-    @IsOptional()
+    @IsNotEmpty()
     @ApiProperty({ example: "", description: 'Sub Category Id', required: false })
     subCateId: Category;
   
     @IsString()
-    @IsOptional()
+    @IsNotEmpty()
     @ApiProperty({ example: "", description: 'Sub Category Name', required: false })
     subCateName: string;
   
@@ -56,12 +59,13 @@ export class CreateRequestDto {
     @ApiProperty({ example: "Any other details you would lie to add", description: 'Any other details you would lie to add', required: true })
     note: string;
 
-    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => CateDto)
     @ApiProperty({ type: ()  => CateDto , description: 'Any other details you would lie to add', required: false })
     cate: CateDto;
 
-
-    @IsNotEmpty()
+    @IsString()
+    @IsOptional()
     @ApiProperty({ example: 'Newyork' , description: 'Address of user', required: false })
     address: string;
 
@@ -75,3 +79,4 @@ export class CreateRequestDto {
     @ApiProperty({ example: -84.087502, description: 'Long', required: false })
     lng: number;
 }
+
