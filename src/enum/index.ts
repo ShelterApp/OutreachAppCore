@@ -18,3 +18,16 @@ export enum OrganizationStatus {
     Enabled = 1,
     Disabled = 3
 }
+
+
+export enum RequestType {
+    UserRequest = 1,
+    CampRequest = 3
+}
+
+export enum RequestStatus {
+    Open = 1,
+    Claim = 3,
+    Archive = 5,
+    Delete = 7
+}

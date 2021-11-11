@@ -11,6 +11,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { ChangePasswordDto } from '../profile/dto/change-password.dto';
+import { SearchParams } from './dto/search-params.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -21,7 +22,9 @@ export class UsersService {
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     registerUserDto.password = await this.hashPassword(registerUserDto.password);
-    registerUserDto.userType = UserRole.Volunteer;
+    if (!registerUserDto.userType) {
+      registerUserDto.userType = UserRole.Volunteer;
+    }
     registerUserDto.isVerify = UserVerify.Unverified;
     const user = this.userModel.create(registerUserDto);
 
@@ -36,9 +39,9 @@ export class UsersService {
     return user;
   }
 
-  async findAll(filter: any, skip = 0, limit = 50) {
-    const sort = this._buildSort(filter);
-    const conditions = this._buildConditions(filter);
+  async findAll(searchParams: SearchParams, skip = 0, limit = 50) {
+    const sort = this._buildSort({});
+    const conditions = this._buildConditions(searchParams);
     const [result, total] = await Promise.all([
       this.userModel
         .find(conditions)
@@ -134,13 +137,38 @@ export class UsersService {
   }
 
   _buildConditions(query) {
-    let conditions = {};
-    // if (undefined !== query.search_text) {
-    //   const searchTextRegex = new RegExp(query.search_text, 'i')
-    //   conditions.name = searchTextRegex;
-    // }
+    type Conditions = {
+        email: string;
+        phone: string;
+        organizationId: string;
+        $and: object[];
+    }
+    let conditions = {} as Conditions;
+    if (query.keyword) {
+      conditions.$and = [];
+      conditions.$and.push({
+          $or: [
+              { name: { $regex: query.keyword, $options: "i" } },
+              { email: { $regex: query.keyword, $options: "i" } },
+              { phone: { $regex: query.keyword, $options: "i" } }
+          ]
+      });
+    }
 
-    return conditions;
+    if (query.email) {
+      conditions.email = query.email;
+    }
+
+    if (query.phone) {
+      conditions.phone = query.phone;
+    }
+
+    if (query.organizationId) {
+      conditions.organizationId = query.organizationId;
+    }
+    
+    return conditions ? conditions : {};
+
   }
 
   _buildSort(query) {

@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, MaxLength, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class UpdateOriganizationDto {
 
@@ -21,13 +21,8 @@ export class UpdateOriganizationDto {
     @ApiProperty({ example: "0987654321", description: 'The desc of origanization' })
     phone: string;
 
-    @IsEmail()
-    @IsString()
-    @ApiProperty({ example: "outstreach@org.com", description: 'The email of origanization'})
-    email: string;
-
-    @IsEmail()
     @IsNumber()
-    @ApiProperty({ example: 1, description: 'The email of origanization . 1: enabled, 3: disabled'})
+    @IsOptional()
+    @ApiProperty({ example: 1, description: 'The status of origanization . 1: enabled, 3: disabled'})
     status: number;
 }

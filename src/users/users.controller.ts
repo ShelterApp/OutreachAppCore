@@ -12,6 +12,7 @@ import { PaginationParams } from '../utils/pagination-params';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { Response } from 'express';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { SearchParams } from './dto/search-params.dto';
 
 @ApiTags('Users')
 @UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
@@ -42,9 +43,9 @@ export class UsersController {
   @Roles(UserRole.OrgLead)
   @ApiOperation({ summary: 'Get list users' })
   @ApiOkResponse({status: 200, description: 'List users'})
-  async find(@Query() { skip, limit }: PaginationParams) {
+  async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParams) {
     console.log(typeof limit);
-    const [items, total] = await this.usersService.findAll({}, skip, limit);
+    const [items, total] = await this.usersService.findAll(searchParams, skip, limit);
     return {
       items,
       total

@@ -1,5 +1,6 @@
 import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserExists } from 'src/validation/user-exists-rule.validate';
 export class CreateOriganizationDto {
 
     @IsString()
@@ -23,8 +24,15 @@ export class CreateOriganizationDto {
 
     @IsEmail()
     @IsString()
+    @UserExists()
     @ApiProperty({ example: "outstreach@org.com", description: 'The email of origanization'})
     email: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6)
+    @ApiProperty({ example: "123456", description: 'The password of account', required: true })
+    password: string;
 
     status: number;
 

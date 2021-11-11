@@ -21,9 +21,9 @@ export class RegionsService {
     }
   }
 
-  async findAll(filter = {}, skip = 0, limit = 50) {
-    const sort = this._buildSort(filter);
-    const conditions = this._buildConditions(filter);
+  async findAll(searchParams, skip = 0, limit = 50) {
+    const sort = this._buildSort({});
+    const conditions = this._buildConditions(searchParams);
     const [result, total] = await Promise.all([
       this.regionModel
         .find(conditions)
@@ -71,13 +71,25 @@ export class RegionsService {
   }
 
   _buildConditions(query) {
-    let conditions = {};
-    // if (undefined !== query.search_text) {
-    //   const searchTextRegex = new RegExp(query.search_text, 'i')
-    //   conditions.name = searchTextRegex;
-    // }
+    type Conditions = {
+        name: RegExp;
+        code: string;
+        parentId: string;
+    }
+    let conditions = {} as Conditions;
+    if (query.keyword) {
+      const searchTextRegex = new RegExp(query.keyword, 'i')
+      conditions.name = searchTextRegex;
+    }
+    if (query.code) {
+      conditions.code = query.code;
+    }
 
-    return conditions;
+    if (query.parentId) {
+      conditions.parentId = query.parentId;
+    }
+    
+    return conditions ? conditions : {};
   }
 
   _buildSort(query) {

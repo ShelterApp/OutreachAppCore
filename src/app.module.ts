@@ -14,6 +14,7 @@ import { AppService } from './app.service';
 import { ProfileModule } from './profile/profile.module';
 import { RegionsModule } from './regions/regions.module';
 import { CategoriesModule } from './categories/categories.module';
+import { RequestsModule } from './requests/requests.module';
 import * as normalize from 'normalize-mongoose';
 console.log(process.env.PWD)
 @Module({
@@ -60,6 +61,7 @@ console.log(process.env.PWD)
     ProfileModule,
     RegionsModule,
     CategoriesModule,
+    RequestsModule,
   ],
   providers: [
     AppService

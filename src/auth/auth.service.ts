@@ -131,7 +131,7 @@ export class AuthService {
 
     public async confirmEmail(email: string) {
         const user = await this.usersService.findByEmail(email);
-        if (!user || !this.usersService.isActiveUser(user)) {
+        if (!user) {
             throw new NotFoundException('cannot_found_user');
         }
 

@@ -10,10 +10,18 @@ import { MatchConstraint } from '../validation/match.validate';
 import { RegionsService } from '../regions/regions.service';
 import { RegionValidRule } from '../validation/region-valid-rule.validate';
 import { Region, RegionSchema } from '../regions/schema/region.schema';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
 @Module({
-  imports: [MongooseModule.forFeature([
+  imports: [JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+        ...configService.get('jwt')
+    }),
+    inject: [ConfigService],
+}),MongooseModule.forFeature([
     { name: Organization.name, schema: OrganizationSchema },
     { name: User.name, schema: UserSchema },
     { name: Region.name, schema: RegionSchema }

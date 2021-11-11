@@ -25,19 +25,19 @@ export class UpdateUserDto {
     phone: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({ example: UserRole.Volunteer, description: 'Type of user', required: false })
     userType: UserRole
     
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({ example: 1, type: 'number', description: 'Is verify email?', required: false })
     isVerify: number
 
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({ type: 'enum', example: 1, description: 'Status of user', required: false })
     status: number
 

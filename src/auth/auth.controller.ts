@@ -4,7 +4,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiResponse, ApiTags, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { LoginSchema, RegisterSchema, ResendEmailVerification, VerifyToken } from './swagger-schema';
+import { LoginSchema, RegisterSwaggerSchema, ResendEmailVerification, VerifyToken } from './swagger-schema';
 import ConfirmEmailDto from './dto/confirm-email.dto';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import ForgotPasswordDto from './dto/forgot-password.dto';
@@ -29,7 +29,7 @@ export class AuthController {
     @Post('register')
     @ApiOperation({ summary: 'Register users' })
     @ApiResponse({ status: 200, description: 'object user'})
-    @ApiBadRequestResponse({ status: 400, description: 'Bad request'})
+    @ApiResponse({ status: 400, description: 'bad request'})
     @ApiUnprocessableEntityResponse({ status: 422, description: 'Unprocessable Entity'})
     async register(@Body() registerUserDto: RegisterUserDto): Promise<any> {
         const user = await this.authService.register(registerUserDto);

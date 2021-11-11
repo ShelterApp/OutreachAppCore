@@ -16,8 +16,8 @@ export const LoginSchema ={
     },
 }
 
-export const RegisterSchema = {
-    ApiCreatedResponse: { description: 'Create user success' },
+export const RegisterSwaggerSchema = {
+    ApiCreatedResponse: { description: 'Register user success' },
     ApiBadRequestResponse : {
         description: 'Create error', schema: {
             type: 'object',
@@ -27,10 +27,8 @@ export const RegisterSchema = {
                     example: 400
                 },
                 message: {
-                    type: "array",
-                    example: [
-                        "Bad request"
-                    ]
+                    type: "string",
+                    example: ''
                 },
                 error: {
                     type: "string"

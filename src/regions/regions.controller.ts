@@ -11,6 +11,7 @@ import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../enum';
 import { PaginationParams } from 'src/utils/pagination-params';
 import { Response } from 'express';
+import { SearchParams } from './dto/search-params.dto';
 
 @Controller('regions')
 @ApiTags('Regions')
@@ -31,8 +32,8 @@ export class RegionsController {
   @Get()
   @ApiOperation({ summary: 'Get list region' })
   @ApiOkResponse({status: 200, description: 'Region list'})
-  async find(@Query() { skip, limit }: PaginationParams) {
-    const [items, total] = await this.regionsService.findAll({}, skip, limit);
+  async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParams) {
+    const [items, total] = await this.regionsService.findAll(searchParams, skip, limit);
     return {
       items,
       total
