@@ -44,7 +44,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Get list users' })
   @ApiOkResponse({status: 200, description: 'List users'})
   async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParams) {
-    console.log(typeof limit);
     const [items, total] = await this.usersService.findAll(searchParams, skip, limit);
     return {
       items,
@@ -100,12 +99,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user by id' })
   @ApiOkResponse({status: 204, description: 'Delete user successfull'})
   async delete(@Param() { id }: ParamsWithId, @Request() req , @Res() res: Response): Promise<any> {
-    console.log(req.user.id);
     try {
-      
-      const user = await this.usersService.remove(id);
+      await this.usersService.remove(id);
     } catch(error) {
-      console.log(error);
       throw new UnprocessableEntityException('error when remove user');
     }
     res.status(204).send();

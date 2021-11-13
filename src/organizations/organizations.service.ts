@@ -50,11 +50,11 @@ export class OrganizationsService {
     }
 
     async findOne(id: string) {
-        const region = await this.organizationModel.findById(id);
-        if (!region) {
+        const org = await this.organizationModel.findById(id);
+        if (!org) {
             throw new NotFoundException('cannot_found_organization');
         }
-        return region;
+        return org;
     }
 
     public findByCode(code: string) {

@@ -1,13 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, UseGuards, Put, Request, BadRequestException, Res } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { UpdateRequestDto } from './dto/update-request.dto';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
+import { SearchParams } from './dto/search-params.dto';
+import { PaginationParams } from '../utils/pagination-params';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { ChangeStatusDto } from './dto/change-status.dto';
+import ParamsWithId from '../utils/params-with-id';
+import { Response } from 'express';
 
 @Controller('requests')
 @ApiTags('[Help Screen ] User Requests')
-@UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
@@ -17,4 +22,49 @@ export class RequestsController {
   create(@Body() createRequestDto: CreateRequestDto) {
     return this.requestsService.create(createRequestDto);
   }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get request (include user request and camp request)' })
+  @ApiOkResponse({status: 200, description: 'List users'})
+  async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParams): Promise<{ items: any; total: any; }> {
+    const [items, total] = await this.requestsService.findAll(searchParams, skip, limit);
+    return {
+      items,
+      total
+    };
+  }
+
+
+  @Get(':id')
+  @ApiParam({
+    name: 'id'
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get request detail by id' })
+  @ApiOkResponse({status: 200, description: 'request detail object'})
+  async findOne(@Param() { id }: ParamsWithId): Promise<any> {
+    return await this.requestsService.findOne(id);
+  }
+
+  @Put(':id/change-status')
+  @ApiParam({
+    name: 'id'
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change - status: enum(Open = 1,Claim = 3,Archive = 5,Delete = 7)' })
+  @ApiOkResponse({status: 204, description: 'Change status success'})
+  async changeStatus(@Param() { id }: ParamsWithId, @Body() changeStatusDto: ChangeStatusDto, @Request() req, @Res() res: Response) {
+    const userId = req.user.id;
+    try {
+      await this.requestsService.changeStatus(id, changeStatusDto.status, userId);
+      res.status(204).send({});
+    } catch(error) {
+      throw new BadRequestException('error when change status');
+    }
+  }
+
 }

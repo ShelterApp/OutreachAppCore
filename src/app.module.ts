@@ -6,8 +6,6 @@ import { EnvConfig } from './configurations/environment.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrganizationsModule } from './organizations/organizations.module';
-import { RolesGuard } from './auth/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AppService } from './app.service';
@@ -15,8 +13,6 @@ import { ProfileModule } from './profile/profile.module';
 import { RegionsModule } from './regions/regions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
-import * as normalize from 'normalize-mongoose';
-console.log(process.env.PWD)
 @Module({
   imports: [
     EnvConfig,

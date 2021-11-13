@@ -38,6 +38,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (result.indexOf('must_be_a_mongodb_id') !== -1) {
       result = result.replace('must_be_a_mongodb_id', 'invalid');
     }
+    if (result.indexOf('must_be_a_number_conforming_to_the_specified_constraints') !== -1) {
+      result = result.replace('must_be_a_number_conforming_to_the_specified_constraints', 'must_be_a_number');
+    }
 
     return result;
   }
