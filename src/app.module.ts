@@ -13,6 +13,7 @@ import { ProfileModule } from './profile/profile.module';
 import { RegionsModule } from './regions/regions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
+import { SuppliesModule } from './supplies/supplies.module';
 @Module({
   imports: [
     EnvConfig,
@@ -58,6 +59,7 @@ import { RequestsModule } from './requests/requests.module';
     RegionsModule,
     CategoriesModule,
     RequestsModule,
+    SuppliesModule,
   ],
   providers: [
     AppService

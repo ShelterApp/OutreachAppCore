@@ -55,7 +55,7 @@ export class OrganizationsController {
 
   @Get()
   @ApiOperation({ summary: 'Get list organization' })
-  @ApiOkResponse({status: 200, description: 'Region list'})
+  @ApiOkResponse({status: 200, description: 'organization list'})
   async find(@Query() { skip, limit }: PaginationParams) {
     const [items, total] = await this.organizationsService.findAll({}, skip, limit);
     return {

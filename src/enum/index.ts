@@ -31,3 +31,13 @@ export enum RequestStatus {
     Archive = 5,
     Delete = 7
 }
+
+export enum SupplyStatus {
+    Enabled = 1,
+    Disabled = 3
+}
+
+export enum SupplyItemStatus {
+    Enabled = 1,
+    Disabled = 3
+}
