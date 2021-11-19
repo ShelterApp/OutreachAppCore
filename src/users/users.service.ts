@@ -45,6 +45,7 @@ export class UsersService {
     const [result, total] = await Promise.all([
       this.userModel
         .find(conditions)
+        .populate('regionId')
         .sort([sort])
         .skip(skip)
         .limit(limit),
@@ -109,8 +110,8 @@ export class UsersService {
     return null;
   }
 
-  findById(id) {
-    return this.userModel.findById(id);
+  async findById(id) {
+    return await (await this.userModel.findById(id)).populate('regionId');
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -140,6 +141,8 @@ export class UsersService {
     type Conditions = {
         email: string;
         phone: string;
+        status: number;
+        userType: string;
         organizationId: string;
         $and: object[];
     }
@@ -165,6 +168,14 @@ export class UsersService {
 
     if (query.organizationId) {
       conditions.organizationId = query.organizationId;
+    }
+
+    if (query.status) {
+      conditions.status = query.status;
+    }
+
+    if (query.userType) {
+      conditions.userType = query.userType;
     }
     
     return conditions ? conditions : {};
