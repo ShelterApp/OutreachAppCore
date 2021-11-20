@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalPipes(new ValidationPipe({transform: true, stopAtFirstError: true}));
+  app.useGlobalPipes(new ValidationPipe({transform: true, stopAtFirstError: true, whitelist: true}));
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('', app, document);
   

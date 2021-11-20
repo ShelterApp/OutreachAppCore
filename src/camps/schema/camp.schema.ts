@@ -4,7 +4,7 @@ import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import * as mongoose from 'mongoose';
 import { CampStatus, CampType, Gender } from '../../enum';
 import { User } from '../../users/schema/user.schema';
-
+import { Location, LocationSchema } from '../../utils/schema/location.schema';
 export type CampDocument = Camp & Document;
 
 @Schema({_id: false})
@@ -35,20 +35,6 @@ export class People extends Document{
     updatedAt: Date;
 }
 export const PeopleSchema = SchemaFactory.createForClass(People);
-
-
-@Schema({_id: false})
-export class Location extends Document{
-
-    @Prop({type: String, required: true})
-    type: string;
-
-    @Prop({type: Array, default: 0})
-    coordinates: number[];
-}
-export const LocationSchema = SchemaFactory.createForClass(Location);
-
-
 @Schema()
 export class Camp {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, default: null })
@@ -88,7 +74,7 @@ export class Camp {
     @Prop({ type: String, required: false, default: null })
     address: string;
 
-    @Prop({type: Location, required: false})
+    @Prop({type: LocationSchema, required: false})
     location: Location
 
     @Prop({ type: Date, default: Date.now() })
@@ -105,5 +91,5 @@ CampSchema.index({ type: 1 });
 CampSchema.index({ status: 1 });
 
 CampSchema.index({ createdAt: 1 });
-CampSchema.index({ location: '2d' });
+CampSchema.index({ location: '2dsphere' });
 CampSchema.index({ address: 1 });

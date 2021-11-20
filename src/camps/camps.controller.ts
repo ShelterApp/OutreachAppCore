@@ -74,7 +74,7 @@ export class CampsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete supplies item' })
+  @ApiOperation({ summary: 'Delete camp' })
   @ApiOkResponse({status: 204, description: 'No content'})
   async remove(@Param() { id }: ParamsWithId, @Res() res: Response) {
     await this.campsService.remove(id);

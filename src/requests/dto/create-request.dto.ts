@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from "class-validator";
+import { LocationDto } from "src/utils/dto/location.dto";
 import { Category } from "../../categories/shema/category.schema";
 
 export class CateDto {
@@ -69,14 +70,8 @@ export class CreateRequestDto {
     @ApiProperty({ example: 'Newyork' , description: 'Address of user', required: false })
     address: string;
 
-    @IsNumber()
-    @IsOptional()
-    @ApiProperty({ example: 9.934739, description: 'Lat', required: false })
-    lat: number;
-
-    @IsNumber()
-    @IsOptional()
-    @ApiProperty({ example: -84.087502, description: 'Long', required: false })
-    lng: number;
+    @IsNotEmpty()
+    @ApiProperty({description: 'GEO', required: false })
+    location: LocationDto;
 }
 

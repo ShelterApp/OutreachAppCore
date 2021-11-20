@@ -4,8 +4,9 @@ import { Category } from '../../categories/shema/category.schema';
 import * as mongoose from 'mongoose';
 import { Request } from './request.schema';
 import { Type } from 'class-transformer';
-export type RequestUserDocument = RequestUser & Document;
+import { Location } from '../../utils/schema/location.schema';
 
+export type RequestUserDocument = RequestUser & Document;
 @Schema({_id: false})
 export class Cate extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Category.name, required: false })
@@ -54,18 +55,14 @@ export class RequestUser {
     @Prop({ type: String, required: false, default: null })
     address: string;
 
-    @Prop({type: Number, required: false, default: 0})
-    lat: number;
-
-    @Prop({type: Number, required: false, default: 0})
-    lng: number;
+    @Prop({type: Location, required: false})
+    location: Location
 }
 
 export const RequestUserSchema = SchemaFactory.createForClass(RequestUser);
 
-RequestUserSchema.index({ name: 1 });
+RequestUserSchema.index({ name: 'text' });
 RequestUserSchema.index({ email: 1 });
 RequestUserSchema.index({ phone: 1 });
 
-RequestUserSchema.index({ lat: 1 });
-RequestUserSchema.index({ lng: 1 });
+RequestUserSchema.index({ location: '2dsphere' });

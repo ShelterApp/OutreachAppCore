@@ -10,6 +10,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import ParamsWithId from '../utils/params-with-id';
 import { Response } from 'express';
+import { CreateCampRequestDto } from './dto/create-camp-request.dto';
 
 @Controller('requests')
 @ApiTags('[Help Screen ] User Requests')
@@ -21,6 +22,19 @@ export class RequestsController {
   @ApiOkResponse({status: 200, description: 'Request Object'})
   create(@Body() createRequestDto: CreateRequestDto) {
     return this.requestsService.create(createRequestDto);
+  }
+
+  @Post('/camp')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create Camp Request' })
+  @ApiOkResponse({status: 200, description: 'Request Object'})
+  async createCampRequest(@Body() createCampRequestDto: CreateCampRequestDto, @Request() req) {
+    try {
+      return await this.requestsService.createCampRequest(createCampRequestDto, req.user.id);
+    } catch(e) {
+      console.log(e);
+    }
   }
 
   @Get()

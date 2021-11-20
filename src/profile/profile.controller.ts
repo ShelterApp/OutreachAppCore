@@ -34,9 +34,8 @@ export class ProfileController {
   @ApiOkResponse({status: 200, description: 'User object'})
   async update(@Request() req, @Body() updateProfileDto: UpdateProfileDto) {
     const id = req.user.id;
-    const data = updateProfileDto as UpdateUserDto;
-
-    return await this.profileService.update(id, data);
+    console.log(updateProfileDto);
+    return await this.profileService.updateProfile(id, updateProfileDto);
   }
 
   @Put('change-password')

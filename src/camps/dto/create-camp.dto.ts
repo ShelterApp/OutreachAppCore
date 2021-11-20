@@ -2,6 +2,7 @@ import { Optional } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, MinLength, ValidateNested } from "class-validator";
+import { LocationDto } from "../../utils/dto/location.dto";
 import { User } from "../../users/schema/user.schema";
 
 export class CreatePeopleDto {
@@ -33,19 +34,6 @@ export class CreatePeopleDto {
     @ApiProperty({ example: 1991, description: 'Unknown', required: false })
     unhouseSince: number;
 }
-
-export class LocationDto {
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty({ example: "Point", description: 'Location type', required: false })
-    type: string;
-
-    @IsArray()
-    @IsNotEmpty()
-    @ApiProperty({ example: [-73.97, 40.77], description: '[Long, Lat]', required: false })
-    coordinates: number[];
-}
-
 export class CreateCampDto {
     @IsString()
     @IsNotEmpty()
@@ -90,7 +78,7 @@ export class CreateCampDto {
 
 
     @IsNotEmpty()
-    @ApiProperty({description: 'GEO', required: false })
+    @ApiProperty({ type: ()  => LocationDto, description: 'GEO', required: false })
     location: LocationDto;
 
 

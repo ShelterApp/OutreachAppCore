@@ -12,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { ChangePasswordDto } from '../profile/dto/change-password.dto';
 import { SearchParams } from './dto/search-params.dto';
+import { UpdateProfileDto } from '../profile/dto/update-profile.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -56,6 +57,17 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userModel.findByIdAndUpdate(id, updateUserDto).setOptions({ new: true });
+
+    if (!user) {
+      throw new UnprocessableEntityException('error_when_update_user');
+    }
+
+    return user;
+  }
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto) {
+
+    const user = await this.userModel.findByIdAndUpdate(id, updateProfileDto).setOptions({ new: true });
 
     if (!user) {
       throw new UnprocessableEntityException('error_when_update_user');

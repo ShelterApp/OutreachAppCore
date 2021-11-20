@@ -4,11 +4,14 @@ import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import * as mongoose from 'mongoose';
 import { RequestStatus, RequestType } from 'src/enum';
 import { User } from '../../users/schema/user.schema';
+import { Location } from '../../utils/schema/location.schema';
 
 export type RequestDocument = Request & Document;
 
 @Schema()
 export class Request {
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Request.name, required: false })
+    externalId: mongoose.Schema.Types.ObjectId;
 
     @Prop({type: String, required: true})
     name: string;
@@ -22,17 +25,17 @@ export class Request {
     @Prop({ type: String, required: false, default: null })
     address: string;
 
-    @Prop({type: Number, required: false, default: 0})
-    lat: number;
-
-    @Prop({type: Number, required: false, default: 0})
-    lng: number;
+    @Prop({type: Location, required: false})
+    location: Location
 
     @Prop({type: Number, default: 1})
     status: RequestStatus;
 
     @Prop({ type: Date, default: Date.now() })
     createdAt: Date;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
+    creator: User;
 
     @Prop({ type: Date, default: Date.now() })
     updatedAt: Date;
@@ -53,3 +56,5 @@ RequestSchema.index({ status: 1 });
 RequestSchema.index({ createdAt: 1 });
 RequestSchema.index({ processAt: 1 });
 RequestSchema.index({ processBy: 1 });
+
+RequestSchema.index({ location: '2dsphere' });

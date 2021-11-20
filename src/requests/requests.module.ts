@@ -6,6 +6,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Request, RequestSchema } from './schema/request.schema';
 import { RequestUser, RequestUserSchema } from './schema/request-user.schema';
+import { RequestCamp, RequestCampSchema } from './schema/request-camp.schema';
+import { CampsService } from 'src/camps/camps.service';
+import { Camp, CampSchema } from 'src/camps/schema/camp.schema';
 
 @Module({
   imports: [JwtModule.registerAsync({
@@ -16,9 +19,11 @@ import { RequestUser, RequestUserSchema } from './schema/request-user.schema';
     inject: [ConfigService],
   }), MongooseModule.forFeature([
     { name: Request.name, schema: RequestSchema },
+    { name: Camp.name, schema: CampSchema },
     { name: RequestUser.name, schema: RequestUserSchema },
+    { name: RequestCamp.name, schema: RequestCampSchema },
   ])],
   controllers: [RequestsController],
-  providers: [RequestsService]
+  providers: [RequestsService, CampsService]
 })
 export class RequestsModule { }
