@@ -177,9 +177,9 @@ export class RequestsService {
 
   _buildSort(query) {
     let sort = {};
-    let sort_by = undefined !== query.sort_by ? query.sort_by : 'createdAt';
-    let sort_type = undefined !== query.sort_type ? query.sort_type : '-1';
-    sort = [sort_by, sort_type];
+    let sortBy = undefined !== query.sortBy ? query.sortBy : 'createdAt';
+    let sortType = undefined !== query.sortType ? query.sortType : '-1';
+    sort = [sortBy, sortType];
     return sort;
   }
 }
