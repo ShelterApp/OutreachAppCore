@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -60,11 +60,9 @@ export class RequestsService {
     }
   }
 
-  async createCampRequest(createCampRequestDto: CreateCampRequestDto, creator) {
+  async createCampRequest(createCampRequestDto: CreateCampRequestDto, camp, creator) {
     // Create Request
     try {
-      // findCamp by id
-      const camp = await this.campsService.findOne(createCampRequestDto.campId);
       const requestData = {
         name: camp.name,
         description: this._getDescriptionBySupply(createCampRequestDto.supplies),
@@ -76,7 +74,7 @@ export class RequestsService {
       if (request) {
         const requestCampData = {
           requestId: request._id,
-          campId: createCampRequestDto.campId,
+          campId: camp.id,
           supplies: createCampRequestDto.supplies,
         }
         const requestUser = await this.requestCampModel.create(requestCampData);
@@ -104,11 +102,19 @@ export class RequestsService {
         .limit(limit),
       this.requestModel.count(conditions)
     ]);
-    const requestIds = _.map(result, '_id');
-    const requestDetail = await this._getRequestDetailByType(RequestType.UserRequest, requestIds);
+    const userRequestIds = _.map(_.filter(result, ['type', RequestType.UserRequest]), '_id');
+    const userRequestDetail = await this._getRequestDetailByType(RequestType.UserRequest, userRequestIds);
+    const campRequestIds = _.map(_.filter(result, ['type', RequestType.CampRequest]), '_id');
+    console.log(campRequestIds);
+    const campRequestDetail = await this._getRequestDetailByType(RequestType.CampRequest, campRequestIds);
     const myResult = [];
     for (const res of result) {
-      myResult.push(this._setRequestDetail(res, requestDetail[res._id]));
+      if (userRequestDetail[res._id]) {
+        myResult.push(this._setRequestDetail(res, userRequestDetail[res._id]));
+      }
+      if (campRequestDetail[res._id]) {
+        myResult.push(this._setRequestDetail(res, campRequestDetail[res._id]));
+      }
     }
 
     return [myResult, total];
@@ -148,7 +154,7 @@ export class RequestsService {
         return _.keyBy(requestUsers, 'requestId');
         break;
       case RequestType.CampRequest:
-        const requestCamps = await this.requestModel.find({requestId: {$in: requestIds}}).lean({getters: true, versionKey: false});
+        const requestCamps = await this.requestCampModel.find({requestId: {$in: requestIds}}).lean({getters: true, versionKey: false});
         return _.keyBy(requestCamps, 'requestId');
         break;
       default:

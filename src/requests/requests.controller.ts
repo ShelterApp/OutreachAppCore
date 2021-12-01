@@ -11,11 +11,15 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import ParamsWithId from '../utils/params-with-id';
 import { Response } from 'express';
 import { CreateCampRequestDto } from './dto/create-camp-request.dto';
+import { CampsService } from '../camps/camps.service';
 
 @Controller('requests')
 @ApiTags('[Help Screen ] User Requests')
 export class RequestsController {
-  constructor(private readonly requestsService: RequestsService) {}
+  constructor(
+    private readonly requestsService: RequestsService,
+    private readonly campsService: CampsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create User Help Request' })
@@ -31,7 +35,8 @@ export class RequestsController {
   @ApiOkResponse({status: 200, description: 'Request Object'})
   async createCampRequest(@Body() createCampRequestDto: CreateCampRequestDto, @Request() req) {
     try {
-      return await this.requestsService.createCampRequest(createCampRequestDto, req.user.id);
+      const camp = await this.campsService.findOne(createCampRequestDto.campId);
+      return await this.requestsService.createCampRequest(createCampRequestDto, camp, req.user.id);
     } catch(e) {
       console.log(e);
     }

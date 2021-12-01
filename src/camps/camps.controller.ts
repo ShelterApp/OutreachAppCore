@@ -1,23 +1,28 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UseGuards, Query, Request, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Roles } from 'src/auth/roles.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { UserRole } from 'src/enum';
-import { PaginationParams } from 'src/utils/pagination-params';
-import ParamsWithId from 'src/utils/params-with-id';
-import { SortParams } from 'src/utils/sort-params.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { UserRole } from '../enum';
+import { PaginationParams } from '../utils/pagination-params';
+import ParamsWithId from '../utils/params-with-id';
+import { SortParams } from '../utils/sort-params.dto';
 import { CampsService } from './camps.service';
 import { CreateCampDto } from './dto/create-camp.dto';
 import { SearchParams } from './dto/search-params.dto';
 import { UpdateCampDto } from './dto/update-camp.dto';
 import {Response} from 'express';
+import { RequestsService } from '../requests/requests.service';
+import { CreateCampRequestDto } from '../requests/dto/create-camp-request.dto';
 @Controller('camps')
 @ApiTags('Camps')
 @UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
 export class CampsController {
-  constructor(private readonly campsService: CampsService) {}
+  constructor(
+    private readonly campsService: CampsService,
+    private readonly requestsService: RequestsService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,7 +33,15 @@ export class CampsController {
   @ApiOkResponse({status: 200, description: 'List camps'})
   async create(@Body() createCampDto: CreateCampDto, @Request() req) {
     createCampDto.creator = req.user.id
-    return await this.campsService.create(createCampDto);
+    
+    const camp =  await this.campsService.create(createCampDto);
+    if (createCampDto.requestSupplies.length > 0) {
+      //Create camp service
+      const createCampRequest = new CreateCampRequestDto();
+      createCampRequest.supplies = createCampRequest.supplies;
+      await this.requestsService.createCampRequest(createCampRequest, camp, createCampDto.creator);
+    }
+    return camp;
   }
 
   @Get()

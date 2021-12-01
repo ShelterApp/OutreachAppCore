@@ -4,6 +4,7 @@ import { Type } from "class-transformer";
 import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, MinLength, ValidateNested } from "class-validator";
 import { LocationDto } from "../../utils/dto/location.dto";
 import { User } from "../../users/schema/user.schema";
+import { Supply } from "src/supplies/schema/supply.schema";
 
 export class CreatePeopleDto {
     @IsString()
@@ -15,23 +16,23 @@ export class CreatePeopleDto {
     @ApiProperty({ example: 18, description: 'Age', required: true })
     age: number;
 
-    @IsNumber()
-    @ApiProperty({ example: 1, description: 'Gender (1: Men, 3: Women, 5: Unknown)', required: true })
-    gender: number;
+    @IsString()
+    @ApiProperty({ example: "Male", description: 'Gender (Male, Female, Non-binary, Prefer to self-disclose, Prefer not to answer)', required: true })
+    gender: string;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    @ApiProperty({ example: 1, description: 'Unknown', required: false })
-    race: number;
+    @ApiProperty({ example: "Asian", description: '"American Indian or Alaska Native", "Asian", "Black or African American", "Hispanic or Latino", "Native Hawaiian or Other Pacific Islander", "White"', required: false })
+    race: string;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    @ApiProperty({ example: 1, description: 'Unknown', required: false })
+    @ApiProperty({ example: "No", description: 'Yes/No', required: false })
     disabled: number;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    @ApiProperty({ example: 1991, description: 'Unknown', required: false })
+    @ApiProperty({ example: "1 year", description: 'Less than an year,  1 year, 2 year', required: false })
     unhouseSince: number;
 }
 export class CreateCampDto {
@@ -81,6 +82,35 @@ export class CreateCampDto {
     @ApiProperty({ type: ()  => LocationDto, description: 'GEO', required: false })
     location: LocationDto;
 
+    @ValidateNested()
+    @IsOptional()
+    @Type(() => CreateSupplyListDto)
+    @ApiProperty({ type: ()  => [CreateSupplyListDto] , description: 'supplies request', required: true })
+    requestSupplies: CreateSupplyListDto[]
+
+
+    @ValidateNested()
+    @IsOptional()
+    @Type(() => CreateSupplyListDto)
+    @ApiProperty({ type: ()  => [CreateSupplyListDto] , description: 'drop request', required: true })
+    dropSupplies: CreateSupplyListDto[]
 
     creator: User;
+}
+
+
+export class CreateSupplyListDto {
+    @IsMongoId()
+    @IsNotEmpty()
+    @ApiProperty({ example: "", description: 'Supply id', required: true })
+    supplyId: Supply;
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({ example: "", description: 'Supply name', required: true })
+    supplyName: string;
+
+    @IsNumber()
+    @ApiProperty({ example: 1, description: 'Supply name', required: true })
+    qty: number;
 }

@@ -2,9 +2,11 @@ import { Injectable, NotFoundException, UnprocessableEntityException } from '@ne
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { CreateSupplyItemDto } from './dto/create-supply-item.dto';
+import { CreateSupplyItemsDto } from './dto/create-supply-items.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { SupplyItem, SupplyItemDocument } from './schema/supply-item.schema';
 import { Supply, SupplyDocument } from './schema/supply.schema';
+import * as _ from 'lodash';
 /** 
  * đề nghị làm 1 trang quản lý supplies chung cho hệ thống. 
  * admin sẽ có quyền truy cập và quản lý ds tên supplies, mỗi org lead quản lý ds supplies của riêng mình thêm supply item thì chọn trong ds supplies của hệ thống
@@ -25,13 +27,38 @@ export class SuppliesItemService {
                 supplyId: createSupplyItemDto.supplyId,
                 organizationId: createSupplyItemDto.organizationId,
                 isDeleted: false,
-            }, createSupplyItemDto).setOptions({ new: true });
+            }, createSupplyItemDto).setOptions({ new: true, upsert: true });
             if (supplyItem) {
                 return await supplyItem.populate('supplyId')
             }
+        } else {
+          throw new UnprocessableEntityException('supplyId_invalid');
         }
-        return await (await this.supplyItemModel.create(createSupplyItemDto)).populate('supplyId');
 
+    } catch (error) {
+        console.log(error);
+      throw new UnprocessableEntityException('error_when_create_supply_item');
+    }
+  }
+
+  async createMany(createSupplyItemsDto: CreateSupplyItemsDto) {
+    try {
+        // Find supply item by supplyId
+        const supplyIds = _.map(createSupplyItemsDto.supplyItems, 'supplyId');
+        const supplies = await this.supplyModel.find({_id: {$in: supplyIds}});
+        const suppliesByKey = _.keyBy(createSupplyItemsDto.supplyItems, 'supplyId');
+        for (const supply of supplies) {
+          await this.supplyItemModel.findOneAndUpdate({
+              supplyId: supply._id,
+              organizationId: createSupplyItemsDto.organizationId,
+              isDeleted: false,
+          }, {
+            supplyId: supply._id,
+            organizationId: createSupplyItemsDto.organizationId,
+            qty: suppliesByKey[supply._id].qty
+          }).setOptions({ new: true, upsert: true });
+        }
+        return true;
     } catch (error) {
         console.log(error);
       throw new UnprocessableEntityException('error_when_create_supply_item');

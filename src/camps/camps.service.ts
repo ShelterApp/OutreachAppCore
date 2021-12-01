@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { count } from 'console';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { CampStatus, CampType } from 'src/enum';
+import { RequestsService } from '../requests/requests.service';
 import { SortParams } from '../utils/sort-params.dto';
 import { CreateCampDto } from './dto/create-camp.dto';
 import { SearchParams } from './dto/search-params.dto';

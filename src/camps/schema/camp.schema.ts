@@ -16,17 +16,17 @@ export class People extends Document{
     @Prop({type: Number, default: 0})
     age: number;
 
-    @Prop({type: Number, default: 1})
-    gender: Gender;
+    @Prop({type: String, default: 1})
+    gender: string;
 
-    @Prop({type: Number, default: null})
-    race: number;
+    @Prop({type: String, default: null})
+    race: string;
 
-    @Prop({type: Number, default: null})
-    disabled: number;
+    @Prop({type: String, default: null})
+    disabled: string;
 
-    @Prop({type: Number, default: null})
-    unhouseSince: number;
+    @Prop({type: String, default: null})
+    unhouseSince: string;
 
     @Prop({ type: Date, default: Date.now() })
     createdAt: Date;

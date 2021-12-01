@@ -9,12 +9,12 @@ import { Category } from "../../categories/shema/category.schema";
 export class CreateSupplyListDto {
     @IsMongoId()
     @IsNotEmpty()
-    @ApiProperty({ example: "", description: 'Supply id', required: true })
+    @ApiProperty({ example: "61950ccc9daaabf0f4b6df5d", description: 'Supply id', required: true })
     supplyId: Supply;
 
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ example: "", description: 'Supply name', required: true })
+    @ApiProperty({ example: "Tents", description: 'Supply name', required: true })
     supplyName: string;
 
     @IsNumber()

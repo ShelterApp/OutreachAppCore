@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { SuppliesItemService } from './supplies-item.service';
 import { CreateSupplyItemDto } from './dto/create-supply-item.dto';
 import { SearchParamsItem } from './dto/search-param-item.dto';
+import { CreateSupplyItemsDto } from './dto/create-supply-items.dto';
 
 @Controller('supplies-items')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -21,6 +22,13 @@ import { SearchParamsItem } from './dto/search-param-item.dto';
 @UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
 export class SuppliesItemController {
   constructor(private readonly suppliesItemService: SuppliesItemService) {}
+
+  @Post('/create-many')
+  @ApiOperation({ summary: 'Create or Update Many Supplies Item' })
+  @ApiOkResponse({status: 201, description: 'Supplies Item Object'})
+  async createMany(@Body() createSupplyItemsDto: CreateSupplyItemsDto) {
+    return await this.suppliesItemService.createMany(createSupplyItemsDto);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create or Update Supplies Item' })
