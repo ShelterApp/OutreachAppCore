@@ -70,7 +70,7 @@ export class CreateRequestDto {
     @ApiProperty({ example: 'Newyork' , description: 'Address of user', required: false })
     address: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({description: 'GEO', required: false })
     location: LocationDto;
 }

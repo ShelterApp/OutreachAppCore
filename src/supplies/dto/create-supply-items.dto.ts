@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Organization } from '../..//organizations/schema/organization.schema';
 import { Supply } from '../schema/supply.schema';
 import { Type } from 'class-transformer';
+import { User } from '../../users/schema/user.schema';
 export class CreateSupplyItemsDto {
 
     @IsMongoId()
@@ -15,6 +16,8 @@ export class CreateSupplyItemsDto {
     @Type(() => SuppliesDto)
     @ApiProperty({ type: ()  => [SuppliesDto] , description: 'Supply list', required: true })
     supplyItems: SuppliesDto[]
+
+    creator: User
 }
 
 

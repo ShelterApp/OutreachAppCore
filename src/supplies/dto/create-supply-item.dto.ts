@@ -2,6 +2,7 @@ import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, M
 import { ApiProperty } from '@nestjs/swagger';
 import { Organization } from '../..//organizations/schema/organization.schema';
 import { Supply } from '../schema/supply.schema';
+import { User } from '../../users/schema/user.schema';
 export class CreateSupplyItemDto {
 
     @IsMongoId()
@@ -18,4 +19,6 @@ export class CreateSupplyItemDto {
     @Min(0)
     @ApiProperty({ example: 1, description: 'The quantity of supplies items' })
     qty: number;
+
+    creator: User
 }

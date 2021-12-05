@@ -15,6 +15,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
 import { SuppliesModule } from './supplies/supplies.module';
 import { CampsModule } from './camps/camps.module';
+import { CamplogsModule } from './camplogs/camplogs.module';
 @Module({
   imports: [
     EnvConfig,
@@ -62,6 +63,7 @@ import { CampsModule } from './camps/camps.module';
     RequestsModule,
     SuppliesModule,
     CampsModule,
+    CamplogsModule,
   ],
   providers: [
     AppService

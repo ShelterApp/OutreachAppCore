@@ -5,15 +5,18 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { CampStatus, CampType } from 'src/enum';
 import { RequestsService } from '../requests/requests.service';
 import { SortParams } from '../utils/sort-params.dto';
-import { CreateCampDto } from './dto/create-camp.dto';
+import { CreateCampDto, CreateSupplyListDto } from './dto/create-camp.dto';
+import { DropSupplyDto } from './dto/drop-supply.dto';
 import { SearchParams } from './dto/search-params.dto';
 import { UpdateCampDto } from './dto/update-camp.dto';
 import { Camp, CampDocument } from './schema/camp.schema';
+import { DropSupply, DropSupplyDocument } from './schema/drop-supply.schema';
 
 @Injectable()
 export class CampsService {
   constructor(
     @InjectModel(Camp.name) private campModel: SoftDeleteModel<CampDocument>,
+    @InjectModel(DropSupply.name) private dropSupplyModel: SoftDeleteModel<DropSupplyDocument>,
   ) { }
 
   async create(createCampDto: CreateCampDto) {
@@ -76,6 +79,20 @@ export class CampsService {
     }
     return deleted.deleted > 0 ? true : false;
   }
+
+  /**
+   * =======================================DROP SUPPLIES===================================================== 
+   * */
+  async dropSupply(dropSupplyDto: DropSupplyDto) {
+    try {
+      return this.dropSupplyModel.create(dropSupplyDto)
+    } catch(error) {
+      throw new BadRequestException('error_when_drop_supplies');
+    }
+  }
+  /**
+   * =======================================END DROP SUPPLIES===================================================
+   */
 
   _buildConditions(query) {
     type Conditions = {

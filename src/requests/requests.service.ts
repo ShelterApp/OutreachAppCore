@@ -13,7 +13,6 @@ import { Request, RequestDocument } from './schema/request.schema';
 import * as _ from 'lodash';
 import { CreateCampRequestDto, CreateSupplyListDto } from './dto/create-camp-request.dto';
 import { RequestCamp, RequestCampDocument } from './schema/request-camp.schema';
-import { CampsService } from 'src/camps/camps.service';
 @Injectable()
 export class RequestsService {
   constructor(
@@ -21,7 +20,6 @@ export class RequestsService {
     @InjectModel(RequestUser.name) private requestUserModel: Model<RequestUserDocument>,
     @InjectModel(RequestCamp.name) private requestCampModel: Model<RequestCampDocument>,
     private readonly configService: ConfigService,
-    private readonly campsService: CampsService,
     private readonly mailerService: MailerService
   ) { }
   async create(createRequestDto: CreateRequestDto) {

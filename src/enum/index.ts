@@ -67,3 +67,9 @@ export enum Race {
 export enum Disabled {
     Unknown = 1
 }
+
+export enum TransactionType {
+    Add = 1,
+    Minus = 2,
+    Drop = 3
+}

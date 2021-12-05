@@ -6,16 +6,35 @@ import { CreateSupplyItemsDto } from './dto/create-supply-items.dto';
 import { UpdateSupplyDto } from './dto/update-supply.dto';
 import { SupplyItem, SupplyItemDocument } from './schema/supply-item.schema';
 import { Supply, SupplyDocument } from './schema/supply.schema';
+const mongoose = require('mongoose');
 import * as _ from 'lodash';
+import { SupplyTransaction, SupplyTransactionDocument, SupplyTransactionSchema } from './schema/supply-transaction.schema';
+import { ObjectId } from 'mongoose';
+import { TransactionType } from 'src/enum';
+import { DropSupply } from 'src/camps/schema/drop-supply.schema';
 /** 
  * đề nghị làm 1 trang quản lý supplies chung cho hệ thống. 
  * admin sẽ có quyền truy cập và quản lý ds tên supplies, mỗi org lead quản lý ds supplies của riêng mình thêm supply item thì chọn trong ds supplies của hệ thống
  * */
+
+
+ export class SupplyTransactionDto {
+  supplyId: ObjectId;
+  supplyName: string;
+  qty: number;
+  externalId: String;
+  type: number;
+  creator: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 @Injectable()
 export class SuppliesItemService {
   constructor(
     @InjectModel(SupplyItem.name) private supplyItemModel: SoftDeleteModel<SupplyItemDocument>,
     @InjectModel(Supply.name) private supplyModel: SoftDeleteModel<SupplyDocument>,
+    @InjectModel(SupplyTransaction.name) private supplyTransactionModel: SoftDeleteModel<SupplyTransactionDocument>,
   ) { }
 
   async create(createSupplyItemDto: CreateSupplyItemDto) {
@@ -23,13 +42,31 @@ export class SuppliesItemService {
         // Find supply item by supplyId
         const supply = await this.supplyModel.findOne({_id: createSupplyItemDto.supplyId});
         if (supply) {
-            const supplyItem = await this.supplyItemModel.findOneAndUpdate({
+            const currentItem = await this.supplyItemModel.findOne({
                 supplyId: createSupplyItemDto.supplyId,
                 organizationId: createSupplyItemDto.organizationId,
                 isDeleted: false,
-            }, createSupplyItemDto).setOptions({ new: true, upsert: true });
-            if (supplyItem) {
-                return await supplyItem.populate('supplyId')
+            });
+            if (currentItem) {
+                // Update
+                let change = createSupplyItemDto.qty - currentItem.qty;
+                currentItem.qty = createSupplyItemDto.qty;
+                currentItem.save();
+                const supplyItem = await currentItem.populate('supplyId');
+                // write transaction
+                await this.supplyTransactionModel.create({
+                    supplyId: supplyItem._id,
+                    supplyName: supplyItem.supplyId.name,
+                    qty: change,
+                    organizationId: supplyItem.organizationId,
+                    externalId: supplyItem.organizationId,
+                    type: TransactionType.Add,
+                    creator: createSupplyItemDto.creator,
+                    createdAt: new Date,
+                    updatedAt: new Date
+                  });
+
+                return supply;
             }
         } else {
           throw new UnprocessableEntityException('supplyId_invalid');
@@ -48,15 +85,33 @@ export class SuppliesItemService {
         const supplies = await this.supplyModel.find({_id: {$in: supplyIds}});
         const suppliesByKey = _.keyBy(createSupplyItemsDto.supplyItems, 'supplyId');
         for (const supply of supplies) {
-          await this.supplyItemModel.findOneAndUpdate({
-              supplyId: supply._id,
-              organizationId: createSupplyItemsDto.organizationId,
-              isDeleted: false,
-          }, {
-            supplyId: supply._id,
-            organizationId: createSupplyItemsDto.organizationId,
-            qty: suppliesByKey[supply._id].qty
-          }).setOptions({ new: true, upsert: true });
+          const currentItem = await this.supplyItemModel.findOne({
+                supplyId: supply._id,
+                organizationId: createSupplyItemsDto.organizationId,
+                isDeleted: false,
+            });
+            if (currentItem) {
+                // Update
+                const qty = suppliesByKey[supply._id].qty;
+                let change = qty - currentItem.qty;
+                currentItem.qty = qty;
+                currentItem.save();
+                const supplyItem = await currentItem.populate('supplyId');
+                // write transaction
+                await this.supplyTransactionModel.create({
+                    supplyId: supplyItem._id,
+                    supplyName: supplyItem.supplyId.name,
+                    qty: change,
+                    organizationId: supplyItem.organizationId,
+                    externalId: supplyItem.organizationId,
+                    type: TransactionType.Add,
+                    creator: createSupplyItemsDto.creator,
+                    createdAt: new Date,
+                    updatedAt: new Date
+                });
+
+            }
+
         }
         return true;
     } catch (error) {
@@ -82,11 +137,79 @@ export class SuppliesItemService {
   }
 
   async findOne(id: string) {
-    const suppliesItem = await this.supplyItemModel.findOne({_id: id, isDeleted: false});
-    if (!suppliesItem) {
-      throw new NotFoundException('cannot_found_supply_item');
+    try {
+      const suppliesItem = await this.supplyItemModel.findOne({_id: id, isDeleted: false});
+      if (!suppliesItem) {
+        throw new NotFoundException('cannot_found_supply_item');
+      }
+      const supply = await this.supplyModel.findById(suppliesItem.supplyId);
+      suppliesItem.supplyId = supply;
+      return suppliesItem;
+    } catch(error) {
+      console.log(error);
+      throw new UnprocessableEntityException('error_unknown');
     }
-    return await suppliesItem.populated('supplyId');
+  }
+
+  async getSupplyByOrgId(supplyIds, organizationId) {
+    console.log(supplyIds, organizationId);
+    const suppliesItems = await this.supplyItemModel.find({
+      supplyId: {
+        $in: supplyIds
+      },
+      organizationId: organizationId
+    }).lean();
+
+    return suppliesItems;
+  }
+
+  async validateSupply(supplies, organizationId) {
+    const supplyIds = _.map(supplies, (supply) => {
+      return mongoose.Types.ObjectId(supply.supplyId);
+    });
+    const suppliesItems = await this.getSupplyByOrgId(supplyIds, organizationId);
+    const supplyByKey = _.keyBy(suppliesItems, 'supplyId');
+    for (const supplyItem of supplies) {
+      if (!(supplyByKey[supplyItem.supplyId]) || supplyByKey[supplyItem.supplyId].qty < supplyItem.qty) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  async dropItem(drop) {
+    try {
+      for(const dropItem of drop.supplies) {
+          const currentItem = await this.supplyItemModel.findOne({
+              supplyId: dropItem.supplyId,
+              organizationId: drop.organizationId,
+              isDeleted: false,
+          });
+          if (currentItem) {
+            // Update
+            let change = currentItem.qty - dropItem.qty;
+            currentItem.qty = change;
+            currentItem.save();
+            const supplyItem = await currentItem.populate('supplyId');
+            // write transaction
+            await this.supplyTransactionModel.create({
+                supplyId: supplyItem._id,
+                supplyName: supplyItem.supplyId.name,
+                qty: -dropItem.qty,
+                organizationId: supplyItem.organizationId,
+                externalId: drop._id,
+                type: TransactionType.Drop,
+                creator: drop.creator,
+                createdAt: new Date,
+                updatedAt: new Date
+              });
+        }
+      }
+    } catch(error) {
+      console.log(error);
+      throw new UnprocessableEntityException('error_can_decrease_item');
+    }
   }
 
 

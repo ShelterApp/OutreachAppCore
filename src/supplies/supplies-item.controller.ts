@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query, Res, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -26,15 +26,21 @@ export class SuppliesItemController {
   @Post('/create-many')
   @ApiOperation({ summary: 'Create or Update Many Supplies Item' })
   @ApiOkResponse({status: 201, description: 'Supplies Item Object'})
-  async createMany(@Body() createSupplyItemsDto: CreateSupplyItemsDto) {
-    return await this.suppliesItemService.createMany(createSupplyItemsDto);
+  async createMany(@Body() createSupplyItemsDto: CreateSupplyItemsDto, @Request() req, @Res() res: Response) {
+    createSupplyItemsDto.creator = req.user.id;
+    await this.suppliesItemService.createMany(createSupplyItemsDto);
+
+    return res.status(201).send();
   }
 
   @Post()
   @ApiOperation({ summary: 'Create or Update Supplies Item' })
   @ApiOkResponse({status: 201, description: 'Supplies Item Object'})
-  async create(@Body() createSupplyItemDto: CreateSupplyItemDto) {
-    return await this.suppliesItemService.create(createSupplyItemDto);
+  async create(@Body() createSupplyItemDto: CreateSupplyItemDto, @Request() req, @Res() res: Response) {
+    createSupplyItemDto.creator = req.user.id;
+    await this.suppliesItemService.create(createSupplyItemDto);
+
+    return res.status(201).send();
   }
 
   @Get()

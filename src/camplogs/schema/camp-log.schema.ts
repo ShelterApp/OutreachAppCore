@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schema/user.schema';
-import { Camp } from './camp.schema';
+import { Camp } from '../../camps/schema/camp.schema';
 
 export type CampLogDocument = CampLog & Document;
 

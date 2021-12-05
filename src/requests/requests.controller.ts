@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, UseGuards, Put, Request, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, UseGuards, Put, Request, BadRequestException, Res, forwardRef, Inject } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -18,7 +18,8 @@ import { CampsService } from '../camps/camps.service';
 export class RequestsController {
   constructor(
     private readonly requestsService: RequestsService,
-    private readonly campsService: CampsService,
+    @Inject(forwardRef(() => CampsService))
+    private campsService: CampsService,
   ) {}
 
   @Post()
