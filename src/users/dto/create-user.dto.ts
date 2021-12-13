@@ -36,7 +36,7 @@ export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
-    @ApiProperty({ example: "123456", description: 'The password of account', required: true })
+    @ApiProperty({ example: "123456", description: 'The password of account', required: false })
     password: string;
 
     @IsMongoId()

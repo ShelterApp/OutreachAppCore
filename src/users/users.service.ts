@@ -34,7 +34,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.hashPassword(createUserDto.password);
-    createUserDto.isVerify = UserVerify.Verified;
+    createUserDto.isVerify = UserVerify.Unverified;
     const user = this.userModel.create(createUserDto);
 
     return user;

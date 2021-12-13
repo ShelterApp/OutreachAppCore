@@ -35,7 +35,7 @@ export class Request {
     createdAt: Date;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
-    creator: User;
+    createdBy: User;
 
     @Prop({ type: Date, default: Date.now() })
     updatedAt: Date;
@@ -48,6 +48,12 @@ export class Request {
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request).plugin(softDeletePlugin);
+
+
+RequestSchema.pre('save', function (this: RequestDocument, next: any) {
+    this.updatedAt = new Date();
+    next();
+});
 
 RequestSchema.index({ externalId: 1 });
 RequestSchema.index({ type: 1 });

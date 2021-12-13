@@ -7,45 +7,52 @@ import { UserRole } from 'src/enum';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import { PaginationParams } from '../utils/pagination-params';
 import ParamsWithId from '../utils/params-with-id';
-import { Response } from 'express';
 import { SuppliesItemService } from './supplies-item.service';
 import { CreateSupplyItemDto } from './dto/create-supply-item.dto';
 import { SearchParamsItem } from './dto/search-param-item.dto';
 import { CreateSupplyItemsDto } from './dto/create-supply-items.dto';
-
+import {Response} from 'express';
 @Controller('supplies-items')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.Admin)
 @Roles(UserRole.OrgLead)
 @ApiTags('Supplies item of org (Role: Admin, OrgLead)')
 @ApiBearerAuth()
-@UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
 export class SuppliesItemController {
-  constructor(private readonly suppliesItemService: SuppliesItemService) {}
+  constructor(private readonly suppliesItemService: SuppliesItemService) { }
 
   @Post('/create-many')
   @ApiOperation({ summary: 'Create or Update Many Supplies Item' })
-  @ApiOkResponse({status: 201, description: 'Supplies Item Object'})
+  @ApiOkResponse({ status: 201, description: 'Supplies Item Object' })
   async createMany(@Body() createSupplyItemsDto: CreateSupplyItemsDto, @Request() req, @Res() res: Response) {
-    createSupplyItemsDto.creator = req.user.id;
-    await this.suppliesItemService.createMany(createSupplyItemsDto);
+    try {
+      createSupplyItemsDto.createdBy = req.user.id;
+      await this.suppliesItemService.createMany(createSupplyItemsDto);
 
-    return res.status(201).send();
+      return res.status(201).send();
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Post()
   @ApiOperation({ summary: 'Create or Update Supplies Item' })
-  @ApiOkResponse({status: 201, description: 'Supplies Item Object'})
+  @ApiOkResponse({ status: 201, description: 'Supplies Item Object' })
   async create(@Body() createSupplyItemDto: CreateSupplyItemDto, @Request() req, @Res() res: Response) {
-    createSupplyItemDto.creator = req.user.id;
-    await this.suppliesItemService.create(createSupplyItemDto);
+    try {
+      createSupplyItemDto.createdBy = req.user.id;
+      await this.suppliesItemService.create(createSupplyItemDto);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
 
     return res.status(201).send();
   }
 
   @Get()
   @ApiOperation({ summary: 'Get list supplies ' })
-  @ApiOkResponse({status: 200, description: 'Supplies list'})
+  @ApiOkResponse({ status: 200, description: 'Supplies list' })
   async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParamsItem) {
     const [items, total] = await this.suppliesItemService.findAll(searchParams, skip, limit);
     return {
@@ -59,7 +66,7 @@ export class SuppliesItemController {
     name: 'id'
   })
   @ApiOperation({ summary: 'Get supplies item by id' })
-  @ApiOkResponse({status: 200, description: 'supplies item object'})
+  @ApiOkResponse({ status: 200, description: 'supplies item object' })
   async findOne(@Param() { id }: ParamsWithId) {
     return await this.suppliesItemService.findOne(id);
   }
@@ -72,7 +79,7 @@ export class SuppliesItemController {
   @Roles(UserRole.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete supplies item' })
-  @ApiOkResponse({status: 204, description: 'No content'})
+  @ApiOkResponse({ status: 204, description: 'No content' })
   async remove(@Param() { id }: ParamsWithId, @Res() res: Response) {
     await this.suppliesItemService.remove(id);
 

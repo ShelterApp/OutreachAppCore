@@ -4,7 +4,7 @@ import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../enum';
+import { AuditLogAction, AuditLogType, UserRole } from '../enum';
 import { PaginationParams } from '../utils/pagination-params';
 import ParamsWithId from '../utils/params-with-id';
 import { SortParams } from '../utils/sort-params.dto';
@@ -17,9 +17,8 @@ import { RequestsService } from '../requests/requests.service';
 import { CreateCampRequestDto } from '../requests/dto/create-camp-request.dto';
 import { DropSupplyDto } from './dto/drop-supply.dto';
 import { DropSupplyList } from './dto/drop-supply-list.dto';
-import { SuppliesItemService } from 'src/supplies/supplies-item.service';
-import { CamplogsService } from 'src/camplogs/camplogs.service';
-import { CreateCamplogDto } from 'src/camplogs/dto/create-camplog.dto';
+import { SuppliesItemService } from '../supplies/supplies-item.service';
+import { AuditlogsService } from '../auditlogs/auditlogs.service';
 @Controller('camps')
 @ApiTags('Camps')
 @UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
@@ -29,7 +28,8 @@ export class CampsController {
     @Inject(forwardRef(() => RequestsService))
     private requestsService: RequestsService,
     private suppliesItemService: SuppliesItemService,
-    private campLogService: CamplogsService
+    @Inject(forwardRef(() => AuditlogsService))
+    private auditlogsService: AuditlogsService
   ) {}
 
   @Post()
@@ -41,31 +41,35 @@ export class CampsController {
   @ApiOkResponse({status: 200, description: 'List camps'})
   async create(@Body() createCampDto: CreateCampDto, @Request() req) {
     const orgId = req.user.organizationId;
-    const validator = await this.suppliesItemService.validateSupply(createCampDto.dropSupplies, orgId);
-    if (!validator) {
-      throw new BadRequestException('error_supply_item_not_enough');
+    if (createCampDto.dropSupplies && createCampDto.dropSupplies.length > 0) {
+      const validator = await this.suppliesItemService.validateSupply(createCampDto.dropSupplies, orgId);
+      if (!validator) {
+        throw new BadRequestException('error_supply_item_not_enough');
+      }
     }
 
-    createCampDto.creator = req.user.id
+    createCampDto.createdBy = req.user.id
     
     const camp = await this.campsService.create(createCampDto);
-    if (createCampDto.requestSupplies.length > 0) {
+    if (createCampDto.requestSupplies && createCampDto.requestSupplies.length > 0) {
       //Create camp service
       const createCampRequest = new CreateCampRequestDto();
       createCampRequest.supplies = createCampDto.requestSupplies;
-      await this.requestsService.createCampRequest(createCampRequest, camp, createCampDto.creator);
+      await this.requestsService.createCampRequest(createCampRequest, camp, createCampDto.createdBy);
+      this.auditlogsService.create(camp._id, orgId, req.user.id, createCampRequest.supplies, AuditLogAction.RequestSupplies, AuditLogType.Camp);
     }
-    if (createCampDto.dropSupplies.length > 0) {
+    if (createCampDto.dropSupplies && createCampDto.dropSupplies.length > 0) {
       // Dont validate drop supplies
       const dropSupplyDto = new DropSupplyDto();
       dropSupplyDto.campId = camp._id;
       dropSupplyDto.supplies = createCampDto.dropSupplies;
       dropSupplyDto.organizationId = req.user.organizationId;
-      dropSupplyDto.creator = req.user.id;
+      dropSupplyDto.createdBy = req.user.id;
       const drop = await this.campsService.dropSupply(dropSupplyDto);
       if (drop) {
         // update quantity supply of org
         await this.suppliesItemService.dropItem(drop);
+        this.auditlogsService.create(camp._id, orgId, req.user.id, dropSupplyDto.supplies, AuditLogAction.DropSupplies, AuditLogType.Camp);
       }
     }
     return camp;
@@ -87,12 +91,13 @@ export class CampsController {
       const dropSupplyDto = new DropSupplyDto();
       dropSupplyDto.campId = id;
       dropSupplyDto.supplies = dropSupplyList.supplies;
-      dropSupplyDto.creator = req.user.id;
+      dropSupplyDto.createdBy = req.user.id;
       dropSupplyDto.organizationId = orgId;
       const drop = await this.campsService.dropSupply(dropSupplyDto);
       if (drop) {
         // update quantity supply of org
         await this.suppliesItemService.dropItem(drop);
+        this.auditlogsService.create(id, orgId, req.user.id, dropSupplyDto.supplies, AuditLogAction.DropSupplies, AuditLogType.Camp);
       }
       return drop;
     } else {
@@ -131,7 +136,8 @@ export class CampsController {
   @Roles(UserRole.OrgLead)
   @ApiOperation({ summary: 'Update camp information' })
   @ApiOkResponse({status: 200, description: 'camp object'})
-  async patch(@Param() { id }: ParamsWithId, @Body() updateCampDto: UpdateCampDto): Promise<any> {
+  async patch(@Param() { id }: ParamsWithId, @Body() updateCampDto: UpdateCampDto, @Request() req): Promise<any> {
+    updateCampDto.updatedBy = req.user.id;
     const camps = await this.campsService.update(id, updateCampDto);
     return camps;
   }

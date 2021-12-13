@@ -2,6 +2,7 @@ import { Optional } from '@nestjs/common';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { User } from '../../users/schema/user.schema';
 import { LocationDto } from '../../utils/dto/location.dto';
 import { CreateCampDto, CreatePeopleDto } from './create-camp.dto';
 
@@ -51,4 +52,7 @@ export class UpdateCampDto {
     @Type(() => LocationDto)
     @ApiProperty({type: ()  => LocationDto, description: 'GEO', required: false })
     location: LocationDto;
+    
+
+    updatedBy: User;
 }

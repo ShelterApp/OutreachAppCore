@@ -29,7 +29,7 @@ export class SupplyTransaction {
     type: number;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
-    creator: User;
+    createdBy: User;
 
     @Prop({ type: Date, default: Date.now() })
     createdAt: Date;

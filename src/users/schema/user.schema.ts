@@ -29,7 +29,7 @@ export class User {
     @Prop({type: String, required: false})
     phone: string;
 
-    @Prop({type: String, required: true})
+    @Prop({type: String, required: false})
     @ExcludeProperty()
     password: string;
 

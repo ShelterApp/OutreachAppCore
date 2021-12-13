@@ -5,7 +5,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { CampStatus, CampType } from 'src/enum';
 import { RequestsService } from '../requests/requests.service';
 import { SortParams } from '../utils/sort-params.dto';
-import { CreateCampDto, CreateSupplyListDto } from './dto/create-camp.dto';
+import { CreateCampDto } from './dto/create-camp.dto';
 import { DropSupplyDto } from './dto/drop-supply.dto';
 import { SearchParams } from './dto/search-params.dto';
 import { UpdateCampDto } from './dto/update-camp.dto';
@@ -36,6 +36,14 @@ export class CampsService {
       const [result, total] = await Promise.all([
         this.campModel
           .find(conditions)
+          .populate({ 
+            path: "createdBy",
+            select: 'name phone'
+          })
+          .populate({ 
+            path: "updatedBy",
+            select: 'name phone'
+          })
           .sort([sort])
           .skip(skip)
           .limit(limit),
@@ -48,8 +56,8 @@ export class CampsService {
     }
   }
 
-  async findOne(id: string) {
-    const camp = await this.campModel.findById(id);
+  async findOne(id: string, projection = '') {
+    const camp = await this.campModel.findById(id, projection);
     if (!camp) {
       throw new NotFoundException('cannot_found_camp');
     }

@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
  
 export class SortParams {
   @IsOptional()
-  @ApiProperty({ example: 0, description: 'Sort by field', required:false })
+  @ApiProperty({ enum: ['createdAt'], description: 'Sort by field', required:false })
   @Transform(({value}) => Number.parseInt(value))
   sortBy: string;
  

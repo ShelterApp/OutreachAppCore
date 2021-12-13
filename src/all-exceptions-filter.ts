@@ -13,6 +13,7 @@ export class ValidateResponse {
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
+    console.log(exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
@@ -23,10 +24,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const mes = exception instanceof HttpException
       ? exception.getResponse() as ValidateResponse
       : new ValidateResponse();
-
     response.status(status).json({
       statusCode: status,
-      message: (typeof mes.message == 'string') ? this.getMessage(mes.message) : this.getMessage(mes.message[0]),
+      message: (typeof mes.message == 'string') ? this.getMessage(mes.message) : this.getMessage(mes.message && mes.message[0] ? mes.message[0] : ''),
       timestamp: new Date().toISOString(),
       error: mes.error,
     });

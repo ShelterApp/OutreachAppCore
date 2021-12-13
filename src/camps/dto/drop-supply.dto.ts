@@ -19,7 +19,7 @@ export class DropSupplyDto {
     @ApiProperty({ type: ()  => [CreateSupplyListDto] , description: 'supplies request', required: true })
     supplies: CreateSupplyListDto[]
 
-    creator: User;
+    createdBy: User;
 
     @IsMongoId()
     organizationId: Organization;

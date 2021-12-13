@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, MaxLength, IsMongoId, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Organization } from '../..//organizations/schema/organization.schema';
+import { Organization } from '../../organizations/schema/organization.schema';
 import { Supply } from '../schema/supply.schema';
 import { User } from '../../users/schema/user.schema';
 export class CreateSupplyItemDto {
@@ -20,5 +20,5 @@ export class CreateSupplyItemDto {
     @ApiProperty({ example: 1, description: 'The quantity of supplies items' })
     qty: number;
 
-    creator: User
+    createdBy: User
 }

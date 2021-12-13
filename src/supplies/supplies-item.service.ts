@@ -24,7 +24,7 @@ import { DropSupply } from 'src/camps/schema/drop-supply.schema';
   qty: number;
   externalId: String;
   type: number;
-  creator: ObjectId;
+  createdBy: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,36 +42,31 @@ export class SuppliesItemService {
         // Find supply item by supplyId
         const supply = await this.supplyModel.findOne({_id: createSupplyItemDto.supplyId});
         if (supply) {
-            const currentItem = await this.supplyItemModel.findOne({
-                supplyId: createSupplyItemDto.supplyId,
-                organizationId: createSupplyItemDto.organizationId,
-                isDeleted: false,
-            });
-            if (currentItem) {
-                // Update
-                let change = createSupplyItemDto.qty - currentItem.qty;
-                currentItem.qty = createSupplyItemDto.qty;
-                currentItem.save();
-                const supplyItem = await currentItem.populate('supplyId');
-                // write transaction
-                await this.supplyTransactionModel.create({
-                    supplyId: supplyItem._id,
-                    supplyName: supplyItem.supplyId.name,
-                    qty: change,
-                    organizationId: supplyItem.organizationId,
-                    externalId: supplyItem.organizationId,
-                    type: TransactionType.Add,
-                    creator: createSupplyItemDto.creator,
-                    createdAt: new Date,
-                    updatedAt: new Date
-                  });
-
-                return supply;
-            }
+          const currentItem = await this.supplyItemModel.findOneAndUpdate({
+              supplyId: createSupplyItemDto.supplyId,
+              organizationId: createSupplyItemDto.organizationId,
+              isDeleted: false,
+          }, createSupplyItemDto).setOptions({ new: true, upsert: true });
+          if (currentItem) {
+            const change = createSupplyItemDto.qty - currentItem.qty;
+            const supplyItem = await currentItem.populate('supplyId')
+            // write transaction
+            await this.supplyTransactionModel.create({
+                supplyId: supplyItem._id,
+                supplyName: supplyItem.supplyId.name,
+                qty: change,
+                organizationId: supplyItem.organizationId,
+                externalId: supplyItem.organizationId,
+                type: TransactionType.Add,
+                createdBy: createSupplyItemDto.createdBy,
+                createdAt: new Date,
+                updatedAt: new Date
+              });
+          }
+          return supply;
         } else {
           throw new UnprocessableEntityException('supplyId_invalid');
         }
-
     } catch (error) {
         console.log(error);
       throw new UnprocessableEntityException('error_when_create_supply_item');
@@ -85,11 +80,15 @@ export class SuppliesItemService {
         const supplies = await this.supplyModel.find({_id: {$in: supplyIds}});
         const suppliesByKey = _.keyBy(createSupplyItemsDto.supplyItems, 'supplyId');
         for (const supply of supplies) {
-          const currentItem = await this.supplyItemModel.findOne({
+          const currentItem = await this.supplyItemModel.findOneAndUpdate({
                 supplyId: supply._id,
                 organizationId: createSupplyItemsDto.organizationId,
                 isDeleted: false,
-            });
+            }, {
+              supplyId: supply._id,
+              organizationId: createSupplyItemsDto.organizationId,
+              qty: suppliesByKey[supply._id].qty
+            }).setOptions({ new: true, upsert: true });
             if (currentItem) {
                 // Update
                 const qty = suppliesByKey[supply._id].qty;
@@ -105,7 +104,7 @@ export class SuppliesItemService {
                     organizationId: supplyItem.organizationId,
                     externalId: supplyItem.organizationId,
                     type: TransactionType.Add,
-                    creator: createSupplyItemsDto.creator,
+                    createdBy: createSupplyItemsDto.createdBy,
                     createdAt: new Date,
                     updatedAt: new Date
                 });
@@ -200,7 +199,7 @@ export class SuppliesItemService {
                 organizationId: supplyItem.organizationId,
                 externalId: drop._id,
                 type: TransactionType.Drop,
-                creator: drop.creator,
+                createdBy: drop.createdBy,
                 createdAt: new Date,
                 updatedAt: new Date
               });

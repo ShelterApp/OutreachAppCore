@@ -64,7 +64,7 @@ export class CreateCampDto {
 
     @IsNumber()
     @IsNotEmpty()
-    @ApiProperty({ example: 1 , description: 'CampType {Pet = 1,Parking = 3}', required: true })
+    @ApiProperty({ example: 1 , description: 'CampType {Camps = 1,CampWithPets = 3,RV = 5,SafeParking = 7,Other = 9}', required: true })
     type: number;
 
     @IsNumber()
@@ -95,7 +95,7 @@ export class CreateCampDto {
     @ApiProperty({ type: ()  => [CreateSupplyListDto] , description: 'drop request', required: true })
     dropSupplies: CreateSupplyListDto[]
 
-    creator: User;
+    createdBy: User;
 }
 
 

@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNumber, Validate, IsNotEmpty, isEnum, MinLength, MaxLength, IsMongoId, Min, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Organization } from '../..//organizations/schema/organization.schema';
+import { Organization } from '../../organizations/schema/organization.schema';
 import { Supply } from '../schema/supply.schema';
 import { Type } from 'class-transformer';
 import { User } from '../../users/schema/user.schema';
@@ -17,7 +17,7 @@ export class CreateSupplyItemsDto {
     @ApiProperty({ type: ()  => [SuppliesDto] , description: 'Supply list', required: true })
     supplyItems: SuppliesDto[]
 
-    creator: User
+    createdBy: User
 }
 
 

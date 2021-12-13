@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { RequestsController } from './requests.controller';
 import { JwtModule } from '@nestjs/jwt';
@@ -8,6 +8,7 @@ import { Request, RequestSchema } from './schema/request.schema';
 import { RequestUser, RequestUserSchema } from './schema/request-user.schema';
 import { RequestCamp, RequestCampSchema } from './schema/request-camp.schema';
 import { CampsModule } from '../camps/camps.module';
+import { AuditlogsModule } from '../auditlogs/auditlogs.module';
 
 @Module({
   imports: [JwtModule.registerAsync({
@@ -20,7 +21,7 @@ import { CampsModule } from '../camps/camps.module';
     { name: Request.name, schema: RequestSchema },
     { name: RequestUser.name, schema: RequestUserSchema },
     { name: RequestCamp.name, schema: RequestCampSchema },
-  ]), CampsModule],
+  ]), CampsModule, forwardRef(() => AuditlogsModule)],
   controllers: [RequestsController],
   providers: [RequestsService],
   exports: [RequestsService]

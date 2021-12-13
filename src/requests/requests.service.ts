@@ -30,7 +30,8 @@ export class RequestsService {
         description: this._getDescriptionByCate(createRequestDto.cate),
         type: RequestType.UserRequest,
         address: createRequestDto.address,
-        location: createRequestDto.location
+        location: createRequestDto.location,
+        createdBy: createRequestDto.createdBy
       }
       const request = await this.requestModel.create(requestData);
       if (request) {
@@ -58,16 +59,15 @@ export class RequestsService {
     }
   }
 
-  async createCampRequest(createCampRequestDto: CreateCampRequestDto, camp, creator) {
+  async createCampRequest(createCampRequestDto: CreateCampRequestDto, camp, createdBy) {
     // Create Request
     try {
       const requestData = {
         name: camp.name,
         description: this._getDescriptionBySupply(createCampRequestDto.supplies),
         type: RequestType.CampRequest,
-        creator: creator
+        createdBy: createdBy
       }
-      console.log(requestData);
       const request = await this.requestModel.create(requestData);
       if (request) {
         const requestCampData = {
@@ -96,6 +96,10 @@ export class RequestsService {
       this.requestModel
         .find(conditions)
         .sort([sort])
+        .populate({ 
+          path: "createdBy",
+          select: 'name phone'
+        })
         .skip(skip)
         .limit(limit),
       this.requestModel.count(conditions)
@@ -103,7 +107,44 @@ export class RequestsService {
     const userRequestIds = _.map(_.filter(result, ['type', RequestType.UserRequest]), '_id');
     const userRequestDetail = await this._getRequestDetailByType(RequestType.UserRequest, userRequestIds);
     const campRequestIds = _.map(_.filter(result, ['type', RequestType.CampRequest]), '_id');
-    console.log(campRequestIds);
+    const campRequestDetail = await this._getRequestDetailByType(RequestType.CampRequest, campRequestIds);
+    const myResult = [];
+    for (const res of result) {
+      if (userRequestDetail[res._id]) {
+        myResult.push(this._setRequestDetail(res, userRequestDetail[res._id]));
+      }
+      if (campRequestDetail[res._id]) {
+        myResult.push(this._setRequestDetail(res, campRequestDetail[res._id]));
+      }
+    }
+
+    return [myResult, total];
+  }
+
+
+  async getMyClaim(userId, skip = 0, limit = 20) {
+    const sort = this._buildSort({});
+    const [result, total] = await Promise.all([
+      this.requestModel
+        .find({
+          status: RequestStatus.Claim,
+          processBy: userId
+        })
+        .sort([sort])
+        .populate({ 
+          path: "createdBy",
+          select: 'name phone'
+        })
+        .skip(skip)
+        .limit(limit),
+      this.requestModel.count({
+        status: RequestStatus.Claim,
+        processBy: userId
+      })
+    ]);
+    const userRequestIds = _.map(_.filter(result, ['type', RequestType.UserRequest]), '_id');
+    const userRequestDetail = await this._getRequestDetailByType(RequestType.UserRequest, userRequestIds);
+    const campRequestIds = _.map(_.filter(result, ['type', RequestType.CampRequest]), '_id');
     const campRequestDetail = await this._getRequestDetailByType(RequestType.CampRequest, campRequestIds);
     const myResult = [];
     for (const res of result) {
@@ -129,12 +170,19 @@ export class RequestsService {
   }
 
   async findOne(id: string) {
-    const request = await this.requestModel.findById(id);
+    const request = await (await this.requestModel.findById(id)).populate({ 
+      path: "createdBy",
+      select: 'name phone', // 1st level subdoc (get comments)
+      populate: { // 2nd level subdoc (get users in comments)
+        path: "organizationId",
+        select: 'name'// space separated (selected fields only)
+      }
+    });
     if (!request) {
         throw new NotFoundException('cannot_found_organization');
     }
-    const requestUser = await this.requestUserModel.findOne({requestId: request._id}).lean();
-    return this._setRequestDetail(request, requestUser);
+    const userRequestDetail = await this._getRequestDetailByType(request.type, [request._id]);
+    return this._setRequestDetail(request, userRequestDetail[request._id]);
 }
 
   update(id: number, updateRequestDto: UpdateRequestDto) {

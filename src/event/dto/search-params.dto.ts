@@ -1,23 +1,12 @@
-import { IsNumber, Min, IsOptional, IsString, IsMongoId, isNumber } from 'class-validator';
+import { IsNumber, Min, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CampStatus, CampType } from 'src/enum';
  
 export class SearchParams {
   @IsOptional()
   @IsString()
   @ApiProperty({ description: 'Search by keyword (name, description)', required:false })
   keyword: string;
- 
-  @IsOptional()
-  @IsString()
-  @ApiProperty({ enum: [1,3,5,7,9], description: 'Filter by type (Camps = 1,CampWithPets = 3,RV = 5,SafeParking = 7,Other = 9)', required:false })
-  type: CampType;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({ enum: [1,3,5,7], description: 'Filter by status: enum(Actived = 1,Inactive = 3,Lostinsweet = 5)', required:false })
-  status: CampStatus;
 
   @IsOptional()
   @IsNumber()

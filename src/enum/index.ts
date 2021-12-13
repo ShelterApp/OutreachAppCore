@@ -49,10 +49,12 @@ export enum CampStatus{
 }
 
 export enum CampType {
-    Pet = 1,
-    Parking = 3
+    Camps = 1,
+    CampWithPets = 3,
+    RV = 5,
+    SafeParking = 7,
+    Other = 9,
 }
-
 
 export enum Gender {
     Men = 1,
@@ -72,4 +74,15 @@ export enum TransactionType {
     Add = 1,
     Minus = 2,
     Drop = 3
+}
+
+export enum AuditLogAction {
+    DropSupplies = 'DropSupplies',
+    RequestSupplies = 'RequestSupplies',
+    JoinEvent = 'JoinEvent'
+}
+
+export enum AuditLogType {
+    Event = 'Event',
+    Camp = 'Camp'
 }

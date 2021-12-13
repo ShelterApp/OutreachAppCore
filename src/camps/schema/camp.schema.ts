@@ -37,8 +37,6 @@ export class People extends Document{
 export const PeopleSchema = SchemaFactory.createForClass(People);
 @Schema()
 export class Camp {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, default: null })
-    creator: User;
 
     @Prop({type: String, required: true})
     name: string;
@@ -82,6 +80,12 @@ export class Camp {
 
     @Prop({ type: Date, default: Date.now() })
     updatedAt: Date;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
+    createdBy: User;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
+    updatedBy: User;
 }
 
 export const CampSchema = SchemaFactory.createForClass(Camp).plugin(softDeletePlugin);
