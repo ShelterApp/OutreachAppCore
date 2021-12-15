@@ -128,7 +128,7 @@ export class RequestsService {
       this.requestModel
         .find({
           status: RequestStatus.Claim,
-          processBy: userId
+          claimBy: userId
         })
         .sort([sort])
         .populate({ 
@@ -139,7 +139,7 @@ export class RequestsService {
         .limit(limit),
       this.requestModel.count({
         status: RequestStatus.Claim,
-        processBy: userId
+        claimBy: userId
       })
     ]);
     const userRequestIds = _.map(_.filter(result, ['type', RequestType.UserRequest]), '_id');
@@ -160,12 +160,23 @@ export class RequestsService {
   }
 
   async changeStatus(id: string, status: RequestStatus, userId: string) {
+    let updateData = { 
+      "status": status,
+    }
+    switch(status) {
+      case RequestStatus.Open:
+        updateData = Object.assign({claimBy: null, claimAt: null}, updateData);
+        break;
+      case RequestStatus.Claim:
+        updateData =  Object.assign({claimBy: userId, claimAt: Date.now() }, updateData);
+        break;
+      case RequestStatus.Archive:
+      case RequestStatus.Delete:
+        updateData =  Object.assign({processBy: userId, processAt: Date.now() }, updateData);
+        break;
+    }
     return await this.requestModel.updateOne({ _id: id }, { 
-      '$set': { 
-        "status": status,
-        "processBy": userId,
-        "processAt": Date.now() 
-      } 
+      '$set': updateData
     });
   }
 

@@ -45,6 +45,12 @@ export class Request {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
     processBy: User;
+
+    @Prop({ type: Date, default: null })
+    claimAt: Date;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
+    claimBy: User;
 }
 
 export const RequestSchema = SchemaFactory.createForClass(Request).plugin(softDeletePlugin);

@@ -9,6 +9,7 @@ import { RequestUser, RequestUserSchema } from './schema/request-user.schema';
 import { RequestCamp, RequestCampSchema } from './schema/request-camp.schema';
 import { CampsModule } from '../camps/camps.module';
 import { AuditlogsModule } from '../auditlogs/auditlogs.module';
+import { SuppliesModule } from '../supplies/supplies.module';
 
 @Module({
   imports: [JwtModule.registerAsync({
@@ -21,7 +22,7 @@ import { AuditlogsModule } from '../auditlogs/auditlogs.module';
     { name: Request.name, schema: RequestSchema },
     { name: RequestUser.name, schema: RequestUserSchema },
     { name: RequestCamp.name, schema: RequestCampSchema },
-  ]), CampsModule, forwardRef(() => AuditlogsModule)],
+  ]), CampsModule, forwardRef(() => AuditlogsModule), SuppliesModule],
   controllers: [RequestsController],
   providers: [RequestsService],
   exports: [RequestsService]

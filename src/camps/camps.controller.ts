@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UseGuards, Query, Request, Res, Inject, forwardRef, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UseGuards, Query, Request, Res, Inject, forwardRef, BadRequestException, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,6 +19,7 @@ import { DropSupplyDto } from './dto/drop-supply.dto';
 import { DropSupplyList } from './dto/drop-supply-list.dto';
 import { SuppliesItemService } from '../supplies/supplies-item.service';
 import { AuditlogsService } from '../auditlogs/auditlogs.service';
+import { ChangeStatusDto } from './dto/change-status.dto';
 @Controller('camps')
 @ApiTags('Camps')
 @UseInterceptors(new SanitizeMongooseModelInterceptor({excludeMongooseId: false, excludeMongooseV: true}))
@@ -122,6 +123,8 @@ export class CampsController {
   @ApiParam({
     name: 'id'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get camps by id' })
   @ApiOkResponse({status: 200, description: 'camps object'})
   async findOne(@Param() { id }: ParamsWithId): Promise<any> {
@@ -132,12 +135,33 @@ export class CampsController {
   @ApiParam({
     name: 'id'
   })
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.Admin)
   @Roles(UserRole.OrgLead)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update camp information' })
   @ApiOkResponse({status: 200, description: 'camp object'})
   async patch(@Param() { id }: ParamsWithId, @Body() updateCampDto: UpdateCampDto, @Request() req): Promise<any> {
     updateCampDto.updatedBy = req.user.id;
+    updateCampDto.updatedAt = new Date();
+    const camps = await this.campsService.update(id, updateCampDto);
+    return camps;
+  }
+
+
+  @Put(':id/change-status')
+  @ApiParam({
+    name: 'id'
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Change Camp Status {Actived = 1,Inactive = 3,Lostinsweet = 5}' })
+  @ApiOkResponse({status: 200, description: 'camp object {Actived = 1,Inactive = 3,Lostinsweet = 5}'})
+  async changeStatus(@Param() { id }: ParamsWithId, @Body() changeStatus: ChangeStatusDto, @Request() req): Promise<any> {
+    const updateCampDto = new UpdateCampDto();
+    updateCampDto.status = changeStatus.status;
+    updateCampDto.updatedBy = req.user.id;
+    updateCampDto.updatedAt = new Date();
     const camps = await this.campsService.update(id, updateCampDto);
     return camps;
   }

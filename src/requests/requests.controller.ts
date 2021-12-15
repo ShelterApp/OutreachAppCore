@@ -1,20 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, UseGuards, Put, Request, BadRequestException, Res, forwardRef, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, UseGuards, Put, Request, BadRequestException, Res, forwardRef, Inject, NotFoundException } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import { SearchParams } from './dto/search-params.dto';
 import { PaginationParams } from '../utils/pagination-params';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import ParamsWithId from '../utils/params-with-id';
 import { Response } from 'express';
 import { CreateCampRequestDto } from './dto/create-camp-request.dto';
 import { CampsService } from '../camps/camps.service';
 import { AuditlogsService } from '../auditlogs/auditlogs.service';
-import { AuditLogAction, AuditLogType } from 'src/enum';
-
+import { AuditLogAction, AuditLogType, RequestStatus, RequestType } from 'src/enum';
+import { DropSupplyDto } from '../camps/dto/drop-supply.dto';
+import { FullfillRequestDto } from './dto/fullfill-request.dto';
+import { SuppliesItemService } from '../supplies/supplies-item.service';
+import * as _ from 'lodash';
 @Controller('requests')
 @ApiTags('[Help Screen ] User Requests')
 export class RequestsController {
@@ -24,6 +25,7 @@ export class RequestsController {
     private campsService: CampsService,
     @Inject(forwardRef(() => AuditlogsService))
     private auditlogsService: AuditlogsService,
+    private suppliesItemService: SuppliesItemService,
   ) {}
 
   @Post()
@@ -39,17 +41,16 @@ export class RequestsController {
   @ApiOperation({ summary: 'Create Camp Request' })
   @ApiOkResponse({status: 200, description: 'Request Object'})
   async createCampRequest(@Body() createCampRequestDto: CreateCampRequestDto, @Request() req) {
-    try {
       const camp = await this.campsService.findOne(createCampRequestDto.campId);
+      if (!camp) {
+        throw new NotFoundException('error_camp_notfound');
+      }
       const requestCamp = await this.requestsService.createCampRequest(createCampRequestDto, camp, req.user.id);
 
       // Build item
       this.auditlogsService.create(camp._id, req.user.organizationId, req.user.id, createCampRequestDto.supplies, AuditLogAction.RequestSupplies, AuditLogType.Camp);
 
       return requestCamp;
-    } catch(e) {
-      console.log(e);
-    }
   }
 
   @Get()
@@ -121,24 +122,66 @@ export class RequestsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Full fill request of my claim (Create new request when supply not enough)' })
   @ApiOkResponse({status: 204, description: 'Change status success'})
-  async fullfillRequest(@Param() { id }: ParamsWithId, @Request() req, @Res() res: Response) {
-      return {
-        'message': 'developing'
+  async fullfillRequest(
+    @Param() { id }: ParamsWithId,
+    @Body() fullfillRequestDto: FullfillRequestDto,
+    @Request() req,
+    @Res() res: Response) {
+    const request = await this.requestsService.findOne(id);
+    if (!request) {
+      throw new NotFoundException('error_not_found_request');
+    }
+    if (request.status != RequestStatus.Claim) {
+      throw new NotFoundException('error_request_must_claim_status');
+    }
+    if (request.type == RequestType.CampRequest) {
+      const [changeStatus, camp] = await Promise.all([
+        await this.requestsService.changeStatus(id, RequestStatus.Archive, req.user.id),
+        await this.campsService.findOne(request.requestInfo.campId)
+      ]);
+      if (!camp) {
+        throw new NotFoundException('error_not_found_camp');
       }
+      const dropSupplyDto = new DropSupplyDto();
+      dropSupplyDto.campId = camp._id;
+      dropSupplyDto.supplies = fullfillRequestDto.supplies;
+      dropSupplyDto.organizationId = req.user.organizationId;
+      dropSupplyDto.createdBy = req.user.id;
+      const drop = await this.campsService.dropSupply(dropSupplyDto);
+      if (drop) {
+        // update quantity supply of org
+        await this.suppliesItemService.dropItem(drop);
+        // Check quantity
+        const dropSupplies = drop.supplies;
+        const dropSuppliesByKey = _.keyBy(dropSupplies, 'supplyId');
+        //Make new request
+        let newSupplies = [];
+        for(const i in request.requestInfo.supplies) {
+          const requestItem = request.requestInfo.supplies[i];
+          if (dropSuppliesByKey[requestItem.supplyId]) {
+            if (dropSuppliesByKey[requestItem.supplyId].qty < requestItem.qty) {
+              let newQty = requestItem.qty - dropSuppliesByKey[requestItem.supplyId].qty;
+              const newRequestItem = _.clone(requestItem);
+              newRequestItem.qty = newQty;
+              newSupplies.push(newRequestItem);
+            }
+          } else {
+            newSupplies.push(requestItem);
+          }
+        }
+        if (newSupplies.length > 0) {
+          const createCampRequestDto = new CreateCampRequestDto();
+          createCampRequestDto.campId = camp._id;
+          createCampRequestDto.supplies = newSupplies;
+          this.requestsService.createCampRequest(createCampRequestDto, camp, request.user);
+          this.auditlogsService.create(camp._id, req.user.organizationId, req.user.id, createCampRequestDto.supplies, AuditLogAction.RequestSupplies, AuditLogType.Camp);
+        }
+        this.auditlogsService.create(camp._id, req.user.organizationId, req.user.id, dropSupplyDto.supplies, AuditLogAction.DropSupplies, AuditLogType.Camp);
+      }
+      res.status(204).send();
+    } else {
+      await this.requestsService.changeStatus(id, RequestStatus.Archive, req.user.id);
+    }
   }
   
-
-  @Put(':id/release')
-  @ApiParam({
-    name: 'id'
-  })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Release request of my claim (Write log)' })
-  @ApiOkResponse({status: 204, description: 'Release reqeust success'})
-  async releaseRequest(@Param() { id }: ParamsWithId, @Request() req, @Res() res: Response) {
-      return {
-        'message': 'developing'
-      }
-  }
 }

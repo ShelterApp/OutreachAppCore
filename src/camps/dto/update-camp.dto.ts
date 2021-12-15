@@ -34,7 +34,7 @@ export class UpdateCampDto {
 
     @IsNumber()
     @Optional()
-    @ApiProperty({ example: 1 , description: 'CampType {Pet = 1,Parking = 3}', required: false })
+    @ApiProperty({ example: 1 , description: 'CampType {Camps = 1,CampWithPets = 3,RV = 5,SafeParking = 7,Other = 9,}', required: false })
     type: number;
 
     @IsNumber()
@@ -55,4 +55,6 @@ export class UpdateCampDto {
     
 
     updatedBy: User;
+
+    updatedAt: Date;
 }

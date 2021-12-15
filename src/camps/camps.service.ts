@@ -66,7 +66,7 @@ export class CampsService {
   }
 
   async update(id: string, updateCampDto: UpdateCampDto) {
-    if (updateCampDto.people.length > 0) {
+    if (updateCampDto.people && updateCampDto.people.length > 0) {
       updateCampDto.numOfPeople = updateCampDto.people.length;
     }
     const supply = await this.campModel.findByIdAndUpdate(id, updateCampDto).setOptions({ new: true });
