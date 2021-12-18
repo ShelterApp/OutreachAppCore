@@ -34,9 +34,7 @@ export class CreateUserDto {
     email: string;
 
     @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    @ApiProperty({ example: "123456", description: 'The password of account', required: false })
+    @IsOptional()
     password: string;
 
     @IsMongoId()
@@ -58,8 +56,7 @@ export class CreateUserDto {
 
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @Type(() => Number)
-    @ApiProperty({ type: 'enum', example: 1, description: 'Status of user', required: true })
     status: number
 }

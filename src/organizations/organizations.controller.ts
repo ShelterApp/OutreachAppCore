@@ -39,14 +39,14 @@ export class OrganizationsController {
     const org = await this.organizationsService.create(createOriganizationDto);
     if (org) {
       // Create user lead from org
-      const createUserDto = new RegisterUserDto();
-      createUserDto.organizationId = org;
-      createUserDto.email = org.email;
-      createUserDto.name = org.name;
-      createUserDto.phone = org.phone;
-      createUserDto.password = createOriganizationDto.password;
-      createUserDto.userType = UserRole.OrgLead;
-      const user = await this.usersService.register(createUserDto);
+      const registerUserDto = new RegisterUserDto();
+      registerUserDto.organizationId = org;
+      registerUserDto.email = org.email;
+      registerUserDto.name = org.name;
+      registerUserDto.phone = org.phone;
+      registerUserDto.password = createOriganizationDto.password;
+      registerUserDto.userType = UserRole.OrgLead;
+      const user = await this.usersService.register(registerUserDto);
       await this.organizationsService.sendEmailVerification(user.email);
     }
 

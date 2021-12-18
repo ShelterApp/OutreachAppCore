@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards, Request, UseInterceptors, Query, Put, Patch
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
 import { UpdateUserDto } from './dto/update-user.dto';
 import ParamsWithId from '../utils/params-with-id';

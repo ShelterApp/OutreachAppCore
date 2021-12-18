@@ -13,12 +13,20 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { ChangePasswordDto } from '../profile/dto/change-password.dto';
 import { SearchParams } from './dto/search-params.dto';
 import { UpdateProfileDto } from '../profile/dto/update-profile.dto';
+import { JwtService } from '@nestjs/jwt';
+
+interface VerificationTokenPayload {
+  email: string;
+}
+
+export default VerificationTokenPayload;
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
     private readonly configService: ConfigService,
-    private readonly mailerService: MailerService
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailerService
   ) { }
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
@@ -33,10 +41,17 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    createUserDto.password = await this.hashPassword(createUserDto.password);
-    createUserDto.isVerify = UserVerify.Unverified;
-    const user = this.userModel.create(createUserDto);
-
+    let sendMail = true;
+    if (createUserDto.password) {
+      sendMail = false
+      createUserDto.password = await this.hashPassword(createUserDto.password);
+    }
+    createUserDto.isVerify = UserVerify.Verified;
+    createUserDto.status = UserStatus.Enabled;
+    const user = await this.userModel.create(createUserDto);
+    if (user && sendMail) {
+      await this.sendResetPasswordEmail(user)
+    }
     return user;
   }
 
@@ -149,6 +164,28 @@ export class UsersService {
     return false;
   }
 
+  async sendResetPasswordEmail(user): Promise<any> {
+
+    const payload: VerificationTokenPayload = { email: user.email.toString() };
+    console.log(this.configService.get('jwt').secret, payload)
+    const token = this.jwtService.sign(payload, {
+        secret: this.configService.get('jwt').secret + 'forgot_password',
+        expiresIn: `1d`
+    });
+
+    return this.mailService.sendMail({
+        to: user.email,
+        from: this.configService.get('mailer').from,
+        subject: 'Create your password for OutreachApp',
+        template: './createpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+        context: {
+            url: this.configService.get('email_forgotpassword_url'),
+            email: user.email,
+            token: token
+        },
+    })
+}
+
   _buildConditions(query) {
     type Conditions = {
         email: string;
@@ -204,7 +241,7 @@ export class UsersService {
 
   public async testMail(email) {
     try {
-      const sendMail = this.mailerService
+      const sendMail = this.mailService
         .sendMail({
           to: email || 'nnluong.dev@gmail.com', // list of receivers
           from: this.configService.get('mailer').from, // sender address
