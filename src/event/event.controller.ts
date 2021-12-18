@@ -156,7 +156,17 @@ export class EventController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventService.remove(+id);
+  @ApiParam({
+    name: 'id'
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete event' })
+  @ApiOkResponse({status: 204, description: 'No content'})
+  async remove(@Param() { id }: ParamsWithId, @Res() res: Response) {
+    await this.eventService.remove(id);
+
+    res.status(204).send();
   }
 }

@@ -131,8 +131,14 @@ export class EventService {
     return event;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(id: string) {
+    const filter = { _id: id };
+    const deleted = await this.eventModel.softDelete(filter);
+
+    if(deleted.deleted <= 0) {
+      throw new UnprocessableEntityException('error_when_delete_event');
+    }
+    return deleted.deleted > 0;
   }
 
   _setAttendees(event, attendes) {
@@ -148,10 +154,13 @@ export class EventService {
     type Conditions = {
         title: string;
         description: string;
-        location: any
+        location: any;
+        isDeleted: boolean;
         $and: object[];
     }
-    let conditions = {} as Conditions;
+    let conditions = {
+      isDeleted: false
+    } as Conditions;
     if (query.keyword) {
       conditions.$and = [];
       conditions.$and.push({
