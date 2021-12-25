@@ -29,9 +29,7 @@ export class EventService {
   async findAll(searchParams: SearchParams, sortParams: SortParams, skip = 0, limit = 20) {
     let sort = this._buildSort(sortParams);
     const conditions = this._buildConditions(searchParams);
-    if (searchParams.lat && searchParams.lng) {
-      sort = [];
-    }
+
     console.log(sort);
     const [result, total] = await Promise.all([
       this.eventModel
@@ -43,7 +41,7 @@ export class EventService {
         .sort([sort])
         .skip(skip)
         .limit(limit),
-        (searchParams.lat && searchParams.lng) ? 0 : this.eventModel.countDocuments(conditions)
+        this.eventModel.countDocuments(conditions)
     ]);
     const myResult = [];
     for(const res of result) {

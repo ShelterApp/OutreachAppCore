@@ -108,10 +108,11 @@ export class CampsService {
       description: string;
       status: CampStatus;
       type: CampType;
-      location: any
+      location: any,
+      isDeleted: boolean,
       $and: object[];
     }
-    let conditions = {} as Conditions;
+    let conditions = {isDeleted: false} as Conditions;
     if (query.keyword) {
       conditions.$and = [];
       conditions.$and.push({

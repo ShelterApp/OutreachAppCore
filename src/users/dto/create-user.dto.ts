@@ -9,6 +9,7 @@ import { Organization } from 'src/organizations/schema/organization.schema';
 import { Type } from 'class-transformer';
 import { RegionValid } from 'src/validation/region-valid-rule.validate';
 import { Region } from 'src/regions/schema/region.schema';
+import { User } from '../schema/user.schema';
 export class CreateUserDto {
 
     @IsMongoId()
@@ -59,4 +60,7 @@ export class CreateUserDto {
     @IsOptional()
     @Type(() => Number)
     status: number
+
+    @IsOptional()
+    createdBy: User;
 }

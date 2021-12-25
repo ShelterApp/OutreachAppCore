@@ -17,6 +17,7 @@ import { SuppliesModule } from './supplies/supplies.module';
 import { CampsModule } from './camps/camps.module';
 import { EventModule } from './event/event.module';
 import { AuditlogsModule } from './auditlogs/auditlogs.module';
+import { PagesModule } from './pages/pages.module';
 @Module({
   imports: [
     EnvConfig,
@@ -66,6 +67,7 @@ import { AuditlogsModule } from './auditlogs/auditlogs.module';
     CampsModule,
     EventModule,
     AuditlogsModule,
+    PagesModule,
   ],
   providers: [
     AppService

@@ -62,6 +62,10 @@ export class UsersService {
       this.userModel
         .find(conditions)
         .populate('regionId')
+        .populate({ 
+          path: "createdBy",
+          select: 'name phone'
+        })
         .sort([sort])
         .skip(skip)
         .limit(limit),

@@ -19,7 +19,8 @@ export class UpdateCampDto {
 
     @ValidateNested()
     @IsOptional()
-    @ApiProperty({ type: ()  => [CreatePeopleDto] , description: 'People in camp', required: false })
+    @Type(() => CreatePeopleDto)
+    @ApiProperty({ type: ()  => [CreatePeopleDto] , description: 'People in camp', required: true })
     people: []
 
     @IsNumber()

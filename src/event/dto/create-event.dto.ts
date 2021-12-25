@@ -41,8 +41,7 @@ export class CreateEventDto {
     @ApiProperty({ example: "London", description: 'Address of event', required: true })
     address: string;
 
-    @IsNotEmpty()
-    @ApiProperty({ type: ()  => LocationDto, description: 'GEO', required: false })
+    @IsOptional()
     location: LocationDto;
 
     @IsNumber()

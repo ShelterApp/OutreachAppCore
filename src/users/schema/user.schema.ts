@@ -42,6 +42,9 @@ export class User {
     @Prop({type: Number, default: UserVerify.Unverified})
     isVerify: number;
 
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
+    createdBy: User;
+
     @Prop({ type: Date, default: Date.now() })
     createdAt: Date;
 

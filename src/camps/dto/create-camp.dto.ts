@@ -28,12 +28,12 @@ export class CreatePeopleDto {
     @IsString()
     @IsOptional()
     @ApiProperty({ example: "No", description: 'Yes/No', required: false })
-    disabled: number;
+    disabled: string;
 
     @IsString()
     @IsOptional()
     @ApiProperty({ example: "1 year", description: 'Less than an year,  1 year, 2 year', required: false })
-    unhouseSince: number;
+    unhouseSince: string;
 }
 export class CreateCampDto {
     @IsString()
