@@ -1,3 +1,5 @@
+include .env.development
+
 alias = shelterApp
 
 dev-up:
@@ -6,14 +8,12 @@ dev-up:
 ps:
 	docker-compose ps
 
-testing-up:
-	docker-compose -f docker-compose-testing.yml up -d --build app
-	
-production-up:
-	docker-compose -f docker-compose-production.yml up -d --build app
+production-build:
+	docker build -f Dockerfile -t outreach_app:$$(git rev-parse --short HEAD) .
+	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
+	docker tag  outreach_app:$$(git rev-parse --short HEAD) shelterapp/outreach_app:1.0.0
+	docker push shelterapp/outreach_app:1.0.0
 
-deploy-staging:
-	docker build -f devops/build/Dockerfile -t harmonia/backend:$$(git rev-parse --short HEAD) --force-rm .
-	docker image prune -f --filter label=stage=builder
-	sed "s/{{commit}}/$$(git rev-parse --short HEAD)/g" devops/environment/staging/app-template.yml > docker-compose.yml
+production-up:
+	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
 	docker-compose -f docker-compose.yml up -d
