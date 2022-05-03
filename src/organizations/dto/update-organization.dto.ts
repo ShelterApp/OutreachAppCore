@@ -34,7 +34,6 @@ export class UpdateOriganizationDto {
 
   @IsString()
   @MinLength(8)
-  @MaxLength(12)
   @ApiProperty({
     example: '0987654321',
     description: 'The desc of origanization',
