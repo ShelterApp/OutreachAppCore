@@ -1,4 +1,4 @@
-include .env.development
+include .env
 
 alias = shelterApp
 
@@ -11,9 +11,10 @@ ps:
 production-build:
 	docker build -f Dockerfile -t outreach_app:$$(git rev-parse --short HEAD) .
 	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
-	docker tag  outreach_app:$$(git rev-parse --short HEAD) shelterapp/outreach_app:1.0.0
-	docker push shelterapp/outreach_app:1.0.0
+	docker tag  outreach_app:$$(git rev-parse --short HEAD) shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
+	docker push shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
 
 production-up:
+	git pull
 	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
-	docker-compose -f docker-compose.yml up -d
+	VERSION=v$$(git rev-parse --short HEAD) docker-compose -f docker-compose.yml up -d
