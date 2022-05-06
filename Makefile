@@ -18,3 +18,6 @@ production-up:
 	git pull
 	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
 	VERSION=v$$(git rev-parse --short HEAD) docker-compose -f docker-compose.yml up -d
+
+clean-up:
+	docker image prune
