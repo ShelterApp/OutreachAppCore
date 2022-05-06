@@ -36,7 +36,15 @@ import { PagesModule } from './pages/pages.module';
     }),
     MailerModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        transport: configService.get('mailer.transport'),
+        transport: {
+          host: configService.get('mailer.host'),
+          port: 587,
+          secure: false,
+          auth: {
+            user: configService.get('mailer.user'),
+            pass: configService.get('mailer.pass'),
+          },
+        },
         defaults: {
           from: configService.get('from'),
         },
