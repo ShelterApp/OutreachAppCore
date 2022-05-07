@@ -2,7 +2,6 @@
 https://docs.nestjs.com/modules
 */
 
-import { MailerService } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,7 +15,6 @@ import {
 } from '../organizations/schema/organization.schema';
 import { Region, RegionSchema } from '../regions/schema/region.schema';
 import { User, UserSchema } from '../users/schema/user.schema';
-import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 import { SendgridService } from '../sendgrid/sendgrid.service';
 import { RegionsService } from '../regions/regions.service';
