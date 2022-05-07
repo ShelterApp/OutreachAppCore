@@ -107,7 +107,9 @@ export class AuthService {
       secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
-
+    console.log(this.configService.get('mailer').user);
+    console.log(this.configService.get('mailer').pass);
+    console.log('------');
     return this.mailService.sendMail({
       to: email,
       from: this.configService.get('mailer').from,
