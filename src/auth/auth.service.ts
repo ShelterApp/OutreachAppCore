@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User, UserDocument } from '../users/schema/user.schema';
 import { MailerService } from '@nestjs-modules/mailer';
+import { SendgridService } from '../sendgrid/sendgrid.service';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
 import { RegionsService } from '../regions/regions.service';
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly regionsService: RegionsService,
     private configService: ConfigService,
     private mailService: MailerService,
+    private sendgridService: SendgridService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -107,19 +109,25 @@ export class AuthService {
       secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
+    const url = this.configService.get('email_forgotpassword_url');
     console.log(this.configService.get('mailer').user);
     console.log(this.configService.get('mailer').pass);
     console.log('------');
-    return this.mailService.sendMail({
+    return this.sendgridService.send({
       to: email,
-      from: this.configService.get('mailer').from,
       subject: 'Reset your password for OutreachApp',
-      template: './forgotpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
-      context: {
-        url: this.configService.get('email_forgotpassword_url'),
-        email: email,
-        token: token,
-      },
+      from: this.configService.get('mailer').user,
+      html: `<div style="width: 768px">
+      <p>Hi There,</p>
+      </br>
+      <p>Follow this link to reset your OutreachApp password for your ${email} account.</p>
+      </br>
+      <a href="${url}?code=${token}">${url}</a>
+      <p>Thanks,</p>
+      <p>Your OutreachApp team</p>
+      <a href="https://outreachapp.org">https://www.outreachapp.app</a>
+      <p>outreachapp@gmail.com</p>
+      </div>`,
     });
   }
 
