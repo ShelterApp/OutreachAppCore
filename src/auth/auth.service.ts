@@ -111,7 +111,6 @@ export class AuthService {
     });
     const url = this.configService.get('email_forgotpassword_url');
     console.log(this.configService.get('mailer').user);
-    console.log(this.configService.get('mailer').pass);
     console.log('------');
     return this.sendgridService.send({
       to: email,
