@@ -37,16 +37,13 @@ import { PagesModule } from './pages/pages.module';
     MailerModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: configService.get('mailer.host'),
-          port: 587,
-          secure: false,
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
           auth: {
             user: configService.get('mailer.user'),
             pass: configService.get('mailer.pass'),
           },
-        },
-        defaults: {
-          from: configService.get('from'),
         },
         preview: false,
         template: {
@@ -77,8 +74,6 @@ import { PagesModule } from './pages/pages.module';
     AuditlogsModule,
     PagesModule,
   ],
-  providers: [
-    AppService
-  ],
+  providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
