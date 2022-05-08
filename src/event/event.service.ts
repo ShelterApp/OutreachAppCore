@@ -163,7 +163,7 @@ export class EventService {
       conditions.$and = [];
       conditions.$and.push({
           $or: [
-              { name: { $regex: query.keyword, $options: "i" } },
+              { title: { $regex: query.keyword, $options: "i" } },
               { description: { $regex: query.keyword, $options: "i" } }
           ]
       });
