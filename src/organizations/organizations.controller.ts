@@ -17,6 +17,8 @@ import { Organization } from './schema/organization.schema';
 import { CreateOrganizationSchema } from './swagger-schema';
 import { Response } from 'express';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
+import { SortParams } from '../utils/sort-params.dto';
+import { SearchParams } from './../event/dto/search-params.dto';
 
 @ApiTags('Organizations')
 @Controller('organizations')
@@ -56,8 +58,8 @@ export class OrganizationsController {
   @Get()
   @ApiOperation({ summary: 'Get list organization' })
   @ApiOkResponse({status: 200, description: 'organization list'})
-  async find(@Query() { skip, limit }: PaginationParams) {
-    const [items, total] = await this.organizationsService.findAll({}, skip, limit);
+  async find(@Query() { skip, limit }: PaginationParams, @Query() searchParams: SearchParams, @Query() sortParams: SortParams) {
+    const [items, total] = await this.organizationsService.findAll(searchParams, sortParams, skip, limit);
     return {
       items,
       total

@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateOriganizationDto } from './dto/create-organization.dto';
 import { UpdateOriganizationDto } from './dto/update-organization.dto';
+import { SortParams } from '../utils/sort-params.dto';
+import { SearchParams } from './../event/dto/search-params.dto';
 import {
   Organization,
   OrganizationDocument,
@@ -47,9 +49,10 @@ export class OrganizationsService {
     return createOriganization;
   }
 
-  async findAll(filter = {}, skip = 0, limit = 50) {
-    const sort = this._buildSort(filter);
-    const conditions = this._buildConditions(filter);
+  async findAll(searchParams: SearchParams, sortParams: SortParams, skip = 0, limit = 50) {
+    let sort = this._buildSort(sortParams);
+    const conditions = this._buildConditions(searchParams);
+  
     const [result, total] = await Promise.all([
       this.organizationModel
         .find(conditions)
@@ -138,13 +141,22 @@ export class OrganizationsService {
   }
 
   _buildConditions(query) {
-    let conditions = {};
-    // if (undefined !== query.search_text) {
-    //   const searchTextRegex = new RegExp(query.search_text, 'i')
-    //   conditions.name = searchTextRegex;
-    // }
-
-    return conditions;
+    type Conditions = {
+      name: string;
+      description: string;
+      $and: object[];
+    };
+    let conditions = {} as Conditions;
+    if (query.keyword) {
+      conditions.$and = [];
+      conditions.$and.push({
+        $or: [
+          { name: { $regex: query.keyword, $options: 'i' } },
+          { description: { $regex: query.keyword, $options: 'i' } },
+        ],
+      });
+    }
+    return conditions ? conditions : {};
   }
 
   _buildSort(query) {
