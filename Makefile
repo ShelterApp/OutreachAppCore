@@ -20,4 +20,4 @@ production-up:
 	VERSION=v$$(git rev-parse --short HEAD) docker-compose -f docker-compose.yml up -d
 
 clean-up:
-	docker image prune
+	docker image prune -a
