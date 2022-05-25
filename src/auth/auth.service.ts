@@ -83,12 +83,11 @@ export class AuthService {
       secret: this.configService.get('jwt').secret + 'email_verification',
       expiresIn: `1d`,
     });
-    console.log(token);
     return this.mailService.sendMail({
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      template: './welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './welcome.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
       context: {
         url: this.configService.get('email_confirmation_url'),
         token: token,
@@ -112,7 +111,7 @@ export class AuthService {
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Reset your password for OutreachApp',
-      template: './forgotpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './forgotpassword.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
       context: {
         url: this.configService.get('email_forgotpassword_url'),
         email: email,

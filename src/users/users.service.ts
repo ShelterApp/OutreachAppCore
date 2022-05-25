@@ -141,7 +141,7 @@ export class UsersService {
   async remove(id: string) {
     const filter = { _id: id };
 
-    const deleted = await this.userModel.softDelete(filter);
+    const deleted = await this.userModel.deleteOne(filter);
     return deleted;
   }
 
@@ -203,7 +203,7 @@ export class UsersService {
       to: user.email,
       from: this.configService.get('mailer').from,
       subject: 'Create your password for OutreachApp',
-      template: './createpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './createpassword.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
       context: {
         url: this.configService.get('email_forgotpassword_url'),
         email: user.email,
