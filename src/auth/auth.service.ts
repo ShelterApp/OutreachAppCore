@@ -80,7 +80,7 @@ export class AuthService {
   async sendEmailVerification(email: string): Promise<any> {
     const payload: VerificationTokenPayload = { email };
     const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('jwt').secret,
+      secret: this.configService.get('jwt').secret + 'email_verification',
       expiresIn: `1d`,
     });
 
