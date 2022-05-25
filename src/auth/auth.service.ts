@@ -88,7 +88,7 @@ export class AuthService {
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      template: './welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: 'welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
       context: {
         url: this.configService.get('email_confirmation_url'),
         token: token,
