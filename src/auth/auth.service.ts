@@ -83,7 +83,7 @@ export class AuthService {
       secret: this.configService.get('jwt').secret + 'email_verification',
       expiresIn: `1d`,
     });
-
+    console.log(token);
     return this.mailService.sendMail({
       to: email,
       from: this.configService.get('mailer').from,
