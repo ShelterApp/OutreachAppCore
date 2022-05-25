@@ -19,7 +19,6 @@ import { CampsModule } from './camps/camps.module';
 import { EventModule } from './event/event.module';
 import { AuditlogsModule } from './auditlogs/auditlogs.module';
 import { PagesModule } from './pages/pages.module';
-import { SendgridModule } from './sendgrid/sendgrid.module';
 import { GoogoleaApisService } from './shared/services/google-apis.service';
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { GoogoleaApisService } from './shared/services/google-apis.service';
     AuthModule,
     UsersModule,
     OrganizationsModule,
-    SendgridModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
