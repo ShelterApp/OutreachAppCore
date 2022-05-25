@@ -1,3 +1,4 @@
+import { SharedModule } from './shared/shared.module';
 import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
@@ -19,6 +20,7 @@ import { EventModule } from './event/event.module';
 import { AuditlogsModule } from './auditlogs/auditlogs.module';
 import { PagesModule } from './pages/pages.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
+import { GoogoleaApisService } from './shared/services/google-apis.service';
 @Module({
   imports: [
     EnvConfig,
@@ -37,14 +39,19 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
       inject: [ConfigService],
     }),
     MailerModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
+      imports: [SharedModule],
+      useFactory: async (
+        configService: ConfigService,
+        googoleaApisService: GoogoleaApisService,
+      ) => ({
         transport: {
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
+          service: 'gmail',
           auth: {
-            user: configService.get('mailer.user'),
-            pass: configService.get('mailer.pass'),
+            type: 'OAuth2',
+            user: configService.get('gmail').address,
+            clientId: configService.get('gmail').oauth_client_id,
+            clientSecret: configService.get('gmail').oauth_client_secret,
+            refreshToken: configService.get('gmail').oauth_refresh_token,
           },
         },
         preview: false,
@@ -64,7 +71,7 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
           },
         },
       }),
-      inject: [ConfigService],
+      inject: [ConfigService, GoogoleaApisService],
     }),
     ProfileModule,
     RegionsModule,

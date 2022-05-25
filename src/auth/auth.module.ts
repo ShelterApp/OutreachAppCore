@@ -16,7 +16,6 @@ import {
 import { Region, RegionSchema } from '../regions/schema/region.schema';
 import { User, UserSchema } from '../users/schema/user.schema';
 import { UsersService } from '../users/users.service';
-import { SendgridService } from '../sendgrid/sendgrid.service';
 import { RegionsService } from '../regions/regions.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -49,7 +48,6 @@ import { UserExistsRule } from '../validation/user-exists-rule.validate';
     UserExistsRule,
     LocalStrategy,
     JwtStrategy,
-    SendgridService,
   ],
   exports: [AuthService],
 })

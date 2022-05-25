@@ -7,7 +7,6 @@ import { UsersService } from '../users/users.service';
 import { User, UserSchema } from '../users/schema/user.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SendgridService } from '../sendgrid/sendgrid.service';
 
 @Module({
   imports: [
@@ -24,7 +23,7 @@ import { SendgridService } from '../sendgrid/sendgrid.service';
     ]),
   ],
   controllers: [OrganizationsController],
-  providers: [OrganizationsService, UsersService, SendgridService],
+  providers: [OrganizationsService, UsersService],
   exports: [OrganizationsService],
 })
 export class OrganizationsModule {}

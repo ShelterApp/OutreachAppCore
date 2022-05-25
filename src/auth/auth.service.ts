@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User, UserDocument } from '../users/schema/user.schema';
-import { SendgridService } from '../sendgrid/sendgrid.service';
+import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
 import { RegionsService } from '../regions/regions.service';
@@ -26,7 +26,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly regionsService: RegionsService,
     private configService: ConfigService,
-    private sendgridService: SendgridService,
+    private mailService: MailerService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -83,29 +83,16 @@ export class AuthService {
       secret: this.configService.get('jwt').secret,
       expiresIn: `1d`,
     });
-    const url = this.configService.get('email_confirmation_url');
 
-    return this.sendgridService.send({
+    return this.mailService.sendMail({
       to: email,
+      from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      from: this.configService.get('mailer').user,
-      html: `<div style="width: 768px">
-      <p>Hi There</p>
-      
-      <p>Agape Silicon Valley registered you for volunteering for 
-      OutreachApp. Please click the below link to compete the signup 
-      Process.</p>
-      
-      <a href="${url}?code=${token}">${url}</a>
-      
-      <p>If you didn't signup for this volunteer opportunity, Please ignore this email.</p>
-      <p></p>
-      <p>Thanks,</p>
-      <p>Your OutreachApp Team</p>
-      <p><a href="https://outreachapp.org">https://outreachapp.org</a></p>
-      <p><a href="https://www.facebook.com/OutreachAppInfo">https://www.facebook.com/OutreachAppInfo</a></p>
-      <p><a href="https://twitter.com/OutreachAppInfo"></a></p>
-      </div>`,
+      template: './welcome', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      context: {
+        url: this.configService.get('email_confirmation_url'),
+        token: token,
+      },
     });
   }
 
@@ -120,22 +107,17 @@ export class AuthService {
       secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
-    const url = this.configService.get('email_forgotpassword_url');
-    return this.sendgridService.send({
+
+    return this.mailService.sendMail({
       to: email,
+      from: this.configService.get('mailer').from,
       subject: 'Reset your password for OutreachApp',
-      from: this.configService.get('mailer').user,
-      html: `<div style="width: 768px">
-      <p>Hi There,</p>
-      </br>
-      <p>Follow this link to reset your OutreachApp password for your ${email} account.</p>
-      </br>
-      <a href="${url}?code=${token}">${url}</a>
-      <p>Thanks,</p>
-      <p>Your OutreachApp team</p>
-      <a href="https://outreachapp.org">https://www.outreachapp.app</a>
-      <p>outreachapp@gmail.com</p>
-      </div>`,
+      template: './forgotpassword', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      context: {
+        url: this.configService.get('email_forgotpassword_url'),
+        email: email,
+        token: token,
+      },
     });
   }
 

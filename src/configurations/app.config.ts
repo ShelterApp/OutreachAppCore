@@ -19,4 +19,12 @@ export default () => ({
   mongodb: {
     uri: process.env.MONGO_URI,
   },
+  gmail: {
+    address: process.env.GMAIL_ADDRESS,
+    oauth_client_id: process.env.GMAIL_OAUTH_CLIENT_ID,
+    oauth_project_id: process.env.GMAIL_OAUTH_PROJECT_ID,
+    oauth_client_secret: process.env.GMAIL_OAUTH_CLIENT_SECRET,
+    oauth_redirect_url: process.env.GMAIL_OAUTH_REDIRECT_URL,
+    oauth_refresh_token: process.env.GMAIL_OAUTH_REFRESH_TOKEN,
+  },
 });
