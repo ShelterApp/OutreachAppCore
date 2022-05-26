@@ -8,11 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { User, UserDocument } from '../users/schema/user.schema';
+import { User } from '../users/schema/user.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
 import { RegionsService } from '../regions/regions.service';
+import { UserVerify, UserStatus } from 'src/enum';
 interface VerificationTokenPayload {
   email: string;
 }
@@ -135,12 +136,16 @@ export class AuthService {
       if (typeof payload === 'object' && 'email' in payload) {
         const email = payload.email;
         const user = await this.usersService.findByEmail(email);
-        if (!user.isVerify) {
-          await this.usersService.markEmailAsConfirmed(email);
-        }
-        if (!user || !this.usersService.isActiveUser(user)) {
+        if (!user) {
           throw new NotFoundException('cannot found user');
         }
+        if (
+          user.isVerify == UserVerify.Unverified ||
+          user.status == UserStatus.Enabled
+        ) {
+          await this.usersService.markEmailAsConfirmed(email);
+        }
+
         return await this.usersService.resetPassword(user, password);
       }
       throw new BadRequestException('bad_reset_password_token');

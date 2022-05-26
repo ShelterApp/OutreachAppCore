@@ -142,7 +142,7 @@ export class UsersService {
   async remove(id: string) {
     const filter = { _id: id };
 
-    const deleted = await this.userModel.softDelete(filter);
+    const deleted = await this.userModel.deleteOne(filter);
     return deleted;
   }
 
@@ -170,7 +170,7 @@ export class UsersService {
   markEmailAsConfirmed(email: string) {
     return this.userModel.updateOne(
       { email },
-      { $set: { isVerify: UserVerify.Verified, status: 1 } },
+      { $set: { isVerify: UserVerify.Verified, status: UserStatus.Enabled } },
     );
   }
 
