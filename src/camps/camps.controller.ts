@@ -144,7 +144,6 @@ export class CampsController {
   async patch(@Param() { id }: ParamsWithId, @Body() updateCampDto: UpdateCampDto, @Request() req): Promise<any> {
     updateCampDto.updatedBy = req.user.id;
     updateCampDto.updatedAt = new Date();
-    console.log(updateCampDto);
     const camps = await this.campsService.update(id, updateCampDto);
     return camps;
   }

@@ -39,36 +39,42 @@ export class SuppliesItemService {
 
   async create(createSupplyItemDto: CreateSupplyItemDto) {
     try {
-        // Find supply item by supplyId
-        const supply = await this.supplyModel.findOne({_id: createSupplyItemDto.supplyId});
-        if (supply) {
-          const currentItem = await this.supplyItemModel.findOneAndUpdate({
+      // Find supply item by supplyId
+      const supply = await this.supplyModel.findOne({
+        _id: createSupplyItemDto.supplyId,
+      });
+      if (supply) {
+        const currentItem = await this.supplyItemModel
+          .findOneAndUpdate(
+            {
               supplyId: createSupplyItemDto.supplyId,
               organizationId: createSupplyItemDto.organizationId,
               isDeleted: false,
-          }, createSupplyItemDto).setOptions({ new: true, upsert: true });
-          if (currentItem) {
-            const change = createSupplyItemDto.qty - currentItem.qty;
-            const supplyItem = await currentItem.populate('supplyId')
-            // write transaction
-            await this.supplyTransactionModel.create({
-                supplyId: supplyItem._id,
-                supplyName: supplyItem.supplyId.name,
-                qty: change,
-                organizationId: supplyItem.organizationId,
-                externalId: supplyItem.organizationId,
-                type: TransactionType.Add,
-                createdBy: createSupplyItemDto.createdBy,
-                createdAt: new Date,
-                updatedAt: new Date
-              });
-          }
-          return supply;
-        } else {
-          throw new UnprocessableEntityException('supplyId_invalid');
+            },
+            createSupplyItemDto,
+          )
+          .setOptions({ new: true, upsert: true });
+        if (currentItem) {
+          const change = createSupplyItemDto.qty - currentItem.qty;
+          const supplyItem = await currentItem.populate('supplyId');
+          // write transaction
+          await this.supplyTransactionModel.create({
+            supplyId: supplyItem._id,
+            supplyName: supplyItem.supplyId.name,
+            qty: change,
+            organizationId: supplyItem.organizationId,
+            externalId: supplyItem.organizationId,
+            type: TransactionType.Add,
+            createdBy: createSupplyItemDto.createdBy,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
         }
+        return supply;
+      } else {
+        throw new UnprocessableEntityException('supplyId_invalid');
+      }
     } catch (error) {
-        console.log(error);
       throw new UnprocessableEntityException('error_when_create_supply_item');
     }
   }

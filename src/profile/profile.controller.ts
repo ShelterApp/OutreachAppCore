@@ -65,7 +65,6 @@ export class ProfileController {
   @ApiOkResponse({ status: 200, description: 'User object' })
   async update(@Request() req, @Body() updateProfileDto: UpdateProfileDto) {
     const id = req.user.id;
-    console.log(updateProfileDto);
     return await this.profileService.updateProfile(id, updateProfileDto);
   }
 

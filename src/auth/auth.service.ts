@@ -87,7 +87,7 @@ export class AuthService {
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      template: './welcome.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './welcome.hbs',
       context: {
         url: this.configService.get('email_confirmation_url'),
         token: token,
@@ -111,7 +111,7 @@ export class AuthService {
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Reset your password for OutreachApp',
-      template: './forgotpassword.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './forgotpassword.hbs',
       context: {
         url: this.configService.get('email_forgotpassword_url'),
         email: email,
@@ -125,11 +125,9 @@ export class AuthService {
       const payload = await this.jwtService.verify(token, {
         secret: this.configService.get('jwt').secret + 'forgot_password',
       });
-      console.log(payload);
       if (typeof payload === 'object' && 'email' in payload) {
         const email = payload.email;
         const user = await this.usersService.findByEmail(email);
-        console.log(user);
         if (!user || !this.usersService.isActiveUser(user)) {
           throw new NotFoundException('cannot found user');
         }
@@ -137,7 +135,6 @@ export class AuthService {
       }
       throw new BadRequestException('bad_reset_password_token');
     } catch (error) {
-      console.log(error);
       if (error?.name === 'TokenExpiredError') {
         throw new BadRequestException('email_reset_password_token_expired');
       } else {

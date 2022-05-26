@@ -133,7 +133,6 @@ export class UsersService {
 
       return true;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }
@@ -193,7 +192,6 @@ export class UsersService {
 
   async sendResetPasswordEmail(user): Promise<any> {
     const payload: VerificationTokenPayload = { email: user.email.toString() };
-    console.log(this.configService.get('jwt').secret, payload);
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
@@ -203,7 +201,7 @@ export class UsersService {
       to: user.email,
       from: this.configService.get('mailer').from,
       subject: 'Create your password for OutreachApp',
-      template: './createpassword.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './createpassword.hbs',
       context: {
         url: this.configService.get('email_forgotpassword_url'),
         email: user.email,

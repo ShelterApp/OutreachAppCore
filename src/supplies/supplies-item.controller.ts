@@ -43,7 +43,6 @@ export class SuppliesItemController {
       createSupplyItemDto.createdBy = req.user.id;
       await this.suppliesItemService.create(createSupplyItemDto);
     } catch (error) {
-      console.log(error);
       throw error;
     }
 

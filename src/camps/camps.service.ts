@@ -24,7 +24,6 @@ export class CampsService {
       createCampDto.numOfPeople = createCampDto.people.length;
       return await this.campModel.create(createCampDto);
     } catch (error) {
-      console.log(error);
       throw new BadRequestException('error_when_create_camps');
     }
   }
@@ -36,22 +35,23 @@ export class CampsService {
       const [result, total] = await Promise.all([
         this.campModel
           .find(conditions)
-          .populate({ 
-            path: "createdBy",
-            select: 'name phone'
+          .populate({
+            path: 'createdBy',
+            select: 'name phone',
           })
-          .populate({ 
-            path: "updatedBy",
-            select: 'name phone'
+          .populate({
+            path: 'updatedBy',
+            select: 'name phone',
           })
           .sort([sort])
           .skip(skip)
           .limit(limit),
-        (searchParams.lat && searchParams.lng) ? 0 : this.campModel.countDocuments(conditions)
+        searchParams.lat && searchParams.lng
+          ? 0
+          : this.campModel.countDocuments(conditions),
       ]);
       return [result, total == 0 ? result.length : total];
     } catch (error) {
-      console.log(error);
       throw new BadRequestException('error_when_get_camps');
     }
   }

@@ -30,7 +30,6 @@ export class EventService {
     let sort = this._buildSort(sortParams);
     const conditions = this._buildConditions(searchParams);
 
-    console.log(sort);
     const [result, total] = await Promise.all([
       this.eventModel
         .find(conditions)

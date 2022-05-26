@@ -123,7 +123,7 @@ export class OrganizationsService {
       to: email,
       from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      template: './welcome.hbs', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+      template: './welcome.hbs',
       context: {
         url: this.configService.get('email_confirmation_url'),
         token: token,

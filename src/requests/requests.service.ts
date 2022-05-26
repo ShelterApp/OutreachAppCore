@@ -63,7 +63,6 @@ export class RequestsService {
         );
       }
     } catch (error) {
-      console.log(error);
       throw new UnprocessableEntityException('Error when create request');
     }
   }
@@ -101,7 +100,6 @@ export class RequestsService {
         );
       }
     } catch (error) {
-      console.log(error);
       throw new UnprocessableEntityException('Error when create request');
     }
   }

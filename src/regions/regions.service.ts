@@ -15,8 +15,7 @@ export class RegionsService {
   async create(createRegionDto: CreateRegionDto) {
     try {
       return await this.regionModel.create(createRegionDto);
-    } catch(error) {
-      console.log(error);
+    } catch (error) {
       throw new BadRequestException('error_when_create_region');
     }
   }
