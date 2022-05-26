@@ -141,7 +141,7 @@ export class AuthService {
         }
         if (
           user.isVerify == UserVerify.Unverified ||
-          user.status == UserStatus.Enabled
+          user.status == UserStatus.Disabled
         ) {
           await this.usersService.markEmailAsConfirmed(email);
         }
