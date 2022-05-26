@@ -96,6 +96,7 @@ export class UsersService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto) {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateProfileDto)
+      .populate('regionId')
       .setOptions({ new: true });
 
     if (!user) {
