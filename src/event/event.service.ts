@@ -30,7 +30,6 @@ export class EventService {
     let sort = this._buildSort(sortParams);
     const conditions = this._buildConditions(searchParams);
 
-    console.log(sort);
     const [result, total] = await Promise.all([
       this.eventModel
         .find(conditions)
@@ -163,7 +162,7 @@ export class EventService {
       conditions.$and = [];
       conditions.$and.push({
           $or: [
-              { name: { $regex: query.keyword, $options: "i" } },
+              { title: { $regex: query.keyword, $options: "i" } },
               { description: { $regex: query.keyword, $options: "i" } }
           ]
       });

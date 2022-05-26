@@ -15,7 +15,6 @@ import { RegionValidRule } from '../validation/region-valid-rule.validate';
 import { Region, RegionSchema } from '../regions/schema/region.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SendgridService } from '../sendgrid/sendgrid.service';
 
 @Module({
   imports: [
@@ -40,7 +39,6 @@ import { SendgridService } from '../sendgrid/sendgrid.service';
     MatchConstraint,
     RegionsService,
     RegionValidRule,
-    SendgridService,
   ],
 })
 export class ProfileModule {}

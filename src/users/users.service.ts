@@ -17,7 +17,7 @@ import { ChangePasswordDto } from '../profile/dto/change-password.dto';
 import { SearchParams } from './dto/search-params.dto';
 import { UpdateProfileDto } from '../profile/dto/update-profile.dto';
 import { JwtService } from '@nestjs/jwt';
-import { SendgridService } from '../sendgrid/sendgrid.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 interface VerificationTokenPayload {
   email: string;
@@ -30,7 +30,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly sendgridService: SendgridService,
+    private mailService: MailerService,
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
@@ -134,7 +134,6 @@ export class UsersService {
 
       return true;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }
@@ -194,28 +193,21 @@ export class UsersService {
 
   async sendResetPasswordEmail(user): Promise<any> {
     const payload: VerificationTokenPayload = { email: user.email.toString() };
-    console.log(this.configService.get('jwt').secret, payload);
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
 
-    const url = this.configService.get('email_forgotpassword_url');
-    return this.sendgridService.send({
+    return this.mailService.sendMail({
       to: user.email,
-      subject: 'Reset your password for OutreachApp',
-      from: this.configService.get('mailer').user,
-      html: `<div style="width: 768px">
-      <p>Hi There,</p>
-      </br>
-      <p>Follow this link to reset your OutreachApp password for your ${user.email} account.</p>
-      </br>
-      <a href="${url}?code=${token}">${url}</a>
-      <p>Thanks,</p>
-      <p>Your OutreachApp team</p>
-      <a href="https://outreachapp.org">https://www.outreachapp.app</a>
-      <p>outreachapp@gmail.com</p>
-      </div>`,
+      from: this.configService.get('mailer').from,
+      subject: 'Create your password for OutreachApp',
+      template: './createpassword.hbs',
+      context: {
+        url: this.configService.get('email_forgotpassword_url'),
+        email: user.email,
+        token: token,
+      },
     });
   }
 

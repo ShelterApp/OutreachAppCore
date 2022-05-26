@@ -10,7 +10,6 @@ import {
 } from '../organizations/schema/organization.schema';
 import { OrganizationValidByIdRule } from '../validation/organization-validbyid-rule.validate';
 import { RegionsService } from '../regions/regions.service';
-import { SendgridService } from '../sendgrid/sendgrid.service';
 import { RegionValidRule } from '../validation/region-valid-rule.validate';
 import { Region, RegionSchema } from '../regions/schema/region.schema';
 import { JwtModule } from '@nestjs/jwt';
@@ -37,7 +36,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     OrganizationValidByIdRule,
     RegionsService,
     RegionValidRule,
-    SendgridService,
   ],
   exports: [UsersService],
 })

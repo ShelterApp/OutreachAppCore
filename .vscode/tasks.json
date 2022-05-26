@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"problemMatcher": [],
+			"label": "npm: start",
+			"detail": "TZ=UTC nest start"
+		},
+		{
+			"type": "npm",
+			"script": "start:dev",
+			"problemMatcher": [],
+			"label": "npm: start:dev",
+			"detail": "TZ=UTC nest start --watch"
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build",
+			"detail": "TZ=UTC nest build"
+		},
+		{
+			"type": "npm",
+			"script": "start:prod",
+			"problemMatcher": [],
+			"label": "npm: start:prod",
+			"detail": "node dist/main"
+		}
+	]
+}

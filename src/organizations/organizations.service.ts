@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateOriganizationDto } from './dto/create-organization.dto';
 import { UpdateOriganizationDto } from './dto/update-organization.dto';
+import { SortParams } from '../utils/sort-params.dto';
+import { SearchParams } from './../event/dto/search-params.dto';
 import {
   Organization,
   OrganizationDocument,
@@ -16,7 +18,7 @@ import Helpers from '../utils/helper';
 import { OrganizationStatus } from '../enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { SendgridService } from '../sendgrid/sendgrid.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 interface VerificationTokenPayload {
   email: string;
@@ -30,7 +32,7 @@ export class OrganizationsService {
     private organizationModel: SoftDeleteModel<OrganizationDocument>,
     private readonly jwtService: JwtService,
     private configService: ConfigService,
-    private sendgridService: SendgridService,
+    private mailService: MailerService,
   ) {}
 
   async create(
@@ -47,9 +49,15 @@ export class OrganizationsService {
     return createOriganization;
   }
 
-  async findAll(filter = {}, skip = 0, limit = 50) {
-    const sort = this._buildSort(filter);
-    const conditions = this._buildConditions(filter);
+  async findAll(
+    searchParams: SearchParams,
+    sortParams: SortParams,
+    skip = 0,
+    limit = 50,
+  ) {
+    let sort = this._buildSort(sortParams);
+    const conditions = this._buildConditions(searchParams);
+
     const [result, total] = await Promise.all([
       this.organizationModel
         .find(conditions)
@@ -111,40 +119,35 @@ export class OrganizationsService {
       expiresIn: `1d`,
     });
 
-    const url = this.configService.get('email_confirmation_url');
-
-    return this.sendgridService.send({
+    return this.mailService.sendMail({
       to: email,
+      from: this.configService.get('mailer').from,
       subject: 'Register account for OutreachApp',
-      from: this.configService.get('mailer').user,
-      html: `<div style="width: 768px">
-          <p>Hi There</p>
-          
-          <p>Agape Silicon Valley registered you for volunteering for 
-          OutreachApp. Please click the below link to compete the signup 
-          Process.</p>
-          
-          <a href="${url}?code=${token}">${url}</a>
-          
-          <p>If you didn't signup for this volunteer opportunity, Please ignore this email.</p>
-          <p></p>
-          <p>Thanks,</p>
-          <p>Your OutreachApp Team</p>
-          <p><a href="https://outreachapp.org">https://outreachapp.org</a></p>
-          <p><a href="https://www.facebook.com/OutreachAppInfo">https://www.facebook.com/OutreachAppInfo</a></p>
-          <p><a href="https://twitter.com/OutreachAppInfo"></a></p>
-          </div>`,
+      template: './welcome.hbs',
+      context: {
+        url: this.configService.get('email_confirmation_url'),
+        token: token,
+      },
     });
   }
 
   _buildConditions(query) {
-    let conditions = {};
-    // if (undefined !== query.search_text) {
-    //   const searchTextRegex = new RegExp(query.search_text, 'i')
-    //   conditions.name = searchTextRegex;
-    // }
-
-    return conditions;
+    type Conditions = {
+      name: string;
+      description: string;
+      $and: object[];
+    };
+    let conditions = {} as Conditions;
+    if (query.keyword) {
+      conditions.$and = [];
+      conditions.$and.push({
+        $or: [
+          { name: { $regex: query.keyword, $options: 'i' } },
+          { description: { $regex: query.keyword, $options: 'i' } },
+        ],
+      });
+    }
+    return conditions ? conditions : {};
   }
 
   _buildSort(query) {

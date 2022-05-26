@@ -30,7 +30,6 @@ export class AuditlogsService {
     createAuditLogDto.action = action;
     createAuditLogDto.type = type;
     createAuditLogDto.createdAt = new Date();
-    console.log(createAuditLogDto);
     return await this.auditlogModel.create(createAuditLogDto);
   }
 
@@ -43,15 +42,14 @@ export class AuditlogsService {
       this.auditlogModel
         .find(conditions)
         .sort([['createdAt', -1]])
-        .populate({ 
-          path: "userId",
-          select: 'name phone'
+        .populate({
+          path: 'userId',
+          select: 'name phone',
         })
         .skip(skip)
         .limit(limit),
-      this.auditlogModel.count(conditions)
+      this.auditlogModel.count(conditions),
     ]);
-    console.log(result);
     return {
       items: result,
       total: total

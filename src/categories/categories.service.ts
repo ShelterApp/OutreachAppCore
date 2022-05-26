@@ -14,8 +14,7 @@ export class CategoriesService {
   async create(createRegionDto: CreateCategoryDto) {
     try {
       return await this.categoryModel.create(createRegionDto);
-    } catch(error) {
-      console.log(error);
+    } catch (error) {
       throw new BadRequestException('error_when_create_category');
     }
   }
