@@ -13,6 +13,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
 import { RegionsService } from '../regions/regions.service';
+import { UserRole } from 'src/enum';
 interface VerificationTokenPayload {
   email: string;
 }
@@ -80,17 +81,21 @@ export class AuthService {
   async sendEmailVerification(email: string): Promise<any> {
     const payload: VerificationTokenPayload = { email };
     const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('jwt').secret + 'email_verification',
+      secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
     return this.mailService.sendMail({
       to: email,
-      from: this.configService.get('mailer').from,
-      subject: 'Register account for OutreachApp',
+      from: {
+        name: 'OutreachApp',
+        address: this.configService.get('mailer').from,
+      },
+      subject: 'Welcome to Outreach App',
       template: './welcome.hbs',
       context: {
-        url: this.configService.get('email_confirmation_url'),
-        token: token,
+        url: this.configService.get('email_forgotpassword_url'),
+        email,
+        token,
       },
     });
   }
@@ -128,6 +133,9 @@ export class AuthService {
       if (typeof payload === 'object' && 'email' in payload) {
         const email = payload.email;
         const user = await this.usersService.findByEmail(email);
+        if (!user.isVerify && user.userType == UserRole.Volunteer) {
+          await this.usersService.markEmailAsConfirmed(email);
+        }
         if (!user || !this.usersService.isActiveUser(user)) {
           throw new NotFoundException('cannot found user');
         }
