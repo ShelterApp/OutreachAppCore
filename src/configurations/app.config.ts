@@ -10,10 +10,6 @@ export default () => ({
   email_confirmation_url: process.env.EMAIL_CONFIRMATION_URL,
   email_forgotpassword_url: process.env.EMAIL_FORGOTPASSWORD_URL,
   mailer: {
-    from: process.env.MAIL_FROM,
-    host: process.env.MAIL_HOST,
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASSWORD,
     sendgrid_api_key: process.env.API_KEY_SENDGRID_OUTREACH_NOREPLY,
   },
   mongodb: {
