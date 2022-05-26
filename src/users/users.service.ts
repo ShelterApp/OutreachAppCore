@@ -57,6 +57,7 @@ export class UsersService {
     const user = await this.userModel.create(createUserDto);
     if (user && sendMail) {
       await this.sendResetPasswordEmail(user);
+      //TODO
     }
     return user;
   }
@@ -95,6 +96,7 @@ export class UsersService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto) {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateProfileDto)
+      .populate('regionId')
       .setOptions({ new: true });
 
     if (!user) {
