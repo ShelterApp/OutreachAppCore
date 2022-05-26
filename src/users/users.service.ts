@@ -199,7 +199,10 @@ export class UsersService {
 
     return this.mailService.sendMail({
       to: user.email,
-      from: this.configService.get('mailer').from,
+      from: {
+        name: 'OutreachApp',
+        address: this.configService.get('gmail').address,
+      },
       subject: 'Create your password for OutreachApp',
       template: './createpassword.hbs',
       context: {

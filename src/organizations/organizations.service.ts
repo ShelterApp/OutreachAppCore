@@ -115,18 +115,22 @@ export class OrganizationsService {
   async sendEmailVerification(email: string): Promise<any> {
     const payload: VerificationTokenPayload = { email };
     const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('jwt').secret,
+      secret: this.configService.get('jwt').secret + 'forgot_password',
       expiresIn: `1d`,
     });
 
     return this.mailService.sendMail({
       to: email,
-      from: this.configService.get('mailer').from,
-      subject: 'Register account for OutreachApp',
-      template: './welcome.hbs',
+      from: {
+        name: 'OutreachApp',
+        address: this.configService.get('gmail').address,
+      },
+      subject: 'Outreach App Organization Account Signup',
+      template: './registerorganization.hbs',
       context: {
-        url: this.configService.get('email_confirmation_url'),
+        url: this.configService.get('email_forgotpassword_url'),
         token: token,
+        from: this.configService.get('gmail').address,
       },
     });
   }

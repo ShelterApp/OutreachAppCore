@@ -13,7 +13,6 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { UsersService } from '../users/users.service';
 import { RegionsService } from '../regions/regions.service';
-import { UserRole } from 'src/enum';
 interface VerificationTokenPayload {
   email: string;
 }
@@ -88,7 +87,7 @@ export class AuthService {
       to: email,
       from: {
         name: 'OutreachApp',
-        address: this.configService.get('mailer').from,
+        address: this.configService.get('gmail').address,
       },
       subject: 'Welcome to Outreach App',
       template: './welcome.hbs',
@@ -114,7 +113,10 @@ export class AuthService {
 
     return this.mailService.sendMail({
       to: email,
-      from: this.configService.get('mailer').from,
+      from: {
+        name: 'OutreachApp',
+        address: this.configService.get('gmail').address,
+      },
       subject: 'Reset your password for OutreachApp',
       template: './forgotpassword.hbs',
       context: {
@@ -133,7 +135,7 @@ export class AuthService {
       if (typeof payload === 'object' && 'email' in payload) {
         const email = payload.email;
         const user = await this.usersService.findByEmail(email);
-        if (!user.isVerify && user.userType == UserRole.Volunteer) {
+        if (!user.isVerify) {
           await this.usersService.markEmailAsConfirmed(email);
         }
         if (!user || !this.usersService.isActiveUser(user)) {
