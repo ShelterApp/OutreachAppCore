@@ -1,22 +1,18 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
   IsEmail,
-  IsNumber,
-  Validate,
-  IsNotEmpty,
-  isEnum,
-  IsOptional,
-  MinLength,
   IsMongoId,
-  ValidationArguments,
-  MaxLength,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MinLength,
 } from 'class-validator';
-import { ApiBadRequestResponse, ApiProperty } from '@nestjs/swagger';
+import { Region } from 'src/regions/schema/region.schema';
 import { Organization } from '../../organizations/schema/organization.schema';
 import { OrganizationValid } from '../../validation/organization-valid-rule.validate';
 import { UserExists } from '../../validation/user-exists-rule.validate';
-import { RegionValid } from '../../validation/region-valid-rule.validate';
-import { Region } from 'src/regions/schema/region.schema';
 export class RegisterUserDto {
   @IsMongoId()
   @IsNotEmpty()
@@ -33,7 +29,7 @@ export class RegisterUserDto {
   name: string;
 
   @IsString()
-  @MinLength(8)
+  @IsPhoneNumber('US')
   @ApiProperty({
     example: '099999999',
     description: 'The phone of person',

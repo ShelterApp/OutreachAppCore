@@ -1,15 +1,13 @@
-import {
-  IsString,
-  IsEmail,
-  IsNumber,
-  Validate,
-  IsNotEmpty,
-  isEnum,
-  MinLength,
-  MaxLength,
-  IsOptional,
-} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 export class UpdateOriganizationDto {
   @IsString()
   @IsNotEmpty()
@@ -33,7 +31,7 @@ export class UpdateOriganizationDto {
   address: string;
 
   @IsString()
-  @MinLength(8)
+  @IsPhoneNumber('US')
   @ApiProperty({
     example: '0987654321',
     description: 'The desc of origanization',

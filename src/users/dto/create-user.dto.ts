@@ -1,25 +1,20 @@
-import {
-  IsString,
-  IsEmail,
-  IsNumber,
-  Validate,
-  IsNotEmpty,
-  isEnum,
-  IsOptional,
-  Min,
-  MinLength,
-  IsMongoId,
-} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole, UserStatus, UserVerify } from '../../enum';
-import { UserExists } from '../../validation/user-exists-rule.validate';
-import { ObjectId } from 'mongoose';
-import { OrganizationValidById } from '../../validation/organization-validbyid-rule.validate';
-import { OrganizationValid } from 'src/validation/organization-valid-rule.validate';
-import { Organization } from 'src/organizations/schema/organization.schema';
 import { Type } from 'class-transformer';
-import { RegionValid } from 'src/validation/region-valid-rule.validate';
+import {
+  IsEmail,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+} from 'class-validator';
+import { Organization } from 'src/organizations/schema/organization.schema';
 import { Region } from 'src/regions/schema/region.schema';
+import { RegionValid } from 'src/validation/region-valid-rule.validate';
+import { UserRole } from '../../enum';
+import { OrganizationValidById } from '../../validation/organization-validbyid-rule.validate';
+import { UserExists } from '../../validation/user-exists-rule.validate';
 import { User } from '../schema/user.schema';
 export class CreateUserDto {
   @IsMongoId()
@@ -38,6 +33,7 @@ export class CreateUserDto {
   name: string;
 
   @IsString()
+  @IsPhoneNumber('US')
   @ApiProperty({
     example: '099999999',
     description: 'The phone of person',

@@ -4,16 +4,13 @@ import {
   IsEmail,
   IsMongoId,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsString,
-  MaxLength,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
-import { User } from '../../users/schema/user.schema';
-import { LocationDto } from '../../utils/dto/location.dto';
 import { Category } from '../../categories/shema/category.schema';
+import { LocationDto } from '../../utils/dto/location.dto';
 
 export class CateDto {
   @IsMongoId()
@@ -89,7 +86,7 @@ export class CreateRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
+  @IsPhoneNumber('US')
   @ApiProperty({
     example: '0111999222',
     description: 'The phone of user request',
