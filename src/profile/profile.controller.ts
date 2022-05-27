@@ -79,12 +79,9 @@ export class ProfileController {
   async changePassword(
     @Request() req,
     @Body() changePasswordDto: ChangePasswordDto,
-    @Res() res: Response,
   ) {
     const id = req.user.id;
 
-    await this.profileService.changePassword(id, changePasswordDto);
-
-    res.status(204);
+    return await this.profileService.changePassword(id, changePasswordDto);
   }
 }

@@ -34,9 +34,7 @@ export class UsersService {
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
-    registerUserDto.password = await this.hashPassword(
-      registerUserDto.password,
-    );
+    registerUserDto.password = this.hashPassword(registerUserDto.password);
     if (!registerUserDto.userType) {
       registerUserDto.userType = UserRole.Volunteer;
     }
@@ -50,14 +48,13 @@ export class UsersService {
     let sendMail = true;
     if (createUserDto.password) {
       sendMail = false;
-      createUserDto.password = await this.hashPassword(createUserDto.password);
+      createUserDto.password = this.hashPassword(createUserDto.password);
     }
     createUserDto.isVerify = UserVerify.Verified;
     createUserDto.status = UserStatus.Enabled;
     const user = await this.userModel.create(createUserDto);
     if (user && sendMail) {
       await this.sendResetPasswordEmail(user);
-      //TODO
     }
     return user;
   }
@@ -106,20 +103,22 @@ export class UsersService {
     return user;
   }
 
-  async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<UserDocument> {
     const user = await this.userModel.findById(id);
     if (!user) {
       throw new NotFoundException('cannot_found_user');
     }
-    const isMatch = await bcrypt.compare(
+    const isMatch = bcrypt.compareSync(
       changePasswordDto.oldPassword,
       user.password,
     );
     if (isMatch) {
-      // Change password
       try {
-        user.password = await this.hashPassword(changePasswordDto.newPassword);
-        user.save();
+        user.password = this.hashPassword(changePasswordDto.newPassword);
+        return user.save();
       } catch (error) {
         throw new UnprocessableEntityException('cannot_change_password');
       }
@@ -128,21 +127,22 @@ export class UsersService {
     }
   }
 
-  async resetPassword(user, password): Promise<boolean> {
+  async resetPassword(
+    user: UserDocument,
+    password: string,
+  ): Promise<UserDocument> {
     try {
-      user.password = await this.hashPassword(password);
-      user.save();
-
-      return true;
+      user.password = this.hashPassword(password);
+      return user.save();
     } catch (error) {
-      return false;
+      throw new BadRequestException('cannot_reset_pass');
     }
   }
 
   async remove(id: string) {
     const filter = { _id: id };
 
-    const deleted = await this.userModel.softDelete(filter);
+    const deleted = this.userModel.softDelete(filter);
     return deleted;
   }
 
@@ -158,13 +158,11 @@ export class UsersService {
     return await (await this.userModel.findById(id)).populate('regionId');
   }
 
-  async hashPassword(password: string): Promise<string> {
+  hashPassword(password: string): string {
     const saltOrRounds = parseInt(
       this.configService.get<string>('saltOrRounds'),
     );
-    const hash = bcrypt.hash(password, saltOrRounds);
-
-    return hash;
+    return bcrypt.hashSync(password, saltOrRounds);
   }
 
   markEmailAsConfirmed(email: string) {
