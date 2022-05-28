@@ -18,6 +18,7 @@ import { SearchParams } from './dto/search-params.dto';
 import { UpdateProfileDto } from '../profile/dto/update-profile.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import * as lodash from 'lodash';
 
 interface VerificationTokenPayload {
   email: string;
@@ -59,9 +60,9 @@ export class UsersService {
     return user;
   }
 
-  async findAll(searchParams: SearchParams, skip = 0, limit = 50) {
+  async findAll(searchParams: SearchParams, skip = 0, limit = 50, req) {
     const sort = this._buildSort({});
-    const conditions = this._buildConditions(searchParams);
+    const conditions = this._buildConditions(searchParams, req.user);
     const [result, total] = await Promise.all([
       this.userModel
         .find(conditions)
@@ -213,16 +214,18 @@ export class UsersService {
     });
   }
 
-  _buildConditions(query) {
+  _buildConditions(query, user) {
+    const userType = user.userType;
     type Conditions = {
       email: string;
       phone: string;
       status: number;
-      userType: string;
+      userType: object;
       organizationId: string;
       $and: object[];
     };
-    let conditions = {} as Conditions;
+    let conditions = {} as Conditions,
+      userTypes = this._filterRoles(userType);
     if (query.keyword) {
       conditions.$and = [];
       conditions.$and.push({
@@ -242,8 +245,12 @@ export class UsersService {
       conditions.phone = query.phone;
     }
 
-    if (query.organizationId) {
+    if (query.organizationId && userType == UserRole.Admin) {
       conditions.organizationId = query.organizationId;
+    }
+
+    if (userType == UserRole.OrgLead) {
+      conditions.organizationId = user.organizationId;
     }
 
     if (query.status) {
@@ -251,8 +258,9 @@ export class UsersService {
     }
 
     if (query.userType) {
-      conditions.userType = query.userType;
+      userTypes = lodash.intersectionWith(userTypes, [query.userType]);
     }
+    conditions.userType = { $in: lodash.compact(userTypes) };
 
     return conditions ? conditions : {};
   }
@@ -263,5 +271,20 @@ export class UsersService {
     let sortType = undefined !== query.sortType ? query.sortType : '-1';
     sort = [sortBy, sortType];
     return sort;
+  }
+
+  _filterRoles(userType: string) {
+    let roles: string[] = [];
+    switch (userType) {
+      case UserRole.Admin:
+        roles = [UserRole.Admin, UserRole.OrgLead, UserRole.Volunteer];
+        break;
+      case UserRole.OrgLead:
+        roles = [UserRole.Volunteer];
+        break;
+      default:
+        break;
+    }
+    return roles;
   }
 }

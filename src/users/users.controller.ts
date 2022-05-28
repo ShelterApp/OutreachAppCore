@@ -69,18 +69,19 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(UserRole.Admin)
-  @Roles(UserRole.OrgLead)
+  @Roles(UserRole.Admin, UserRole.OrgLead)
   @ApiOperation({ summary: 'Get list users' })
   @ApiOkResponse({ status: 200, description: 'List users' })
   async find(
     @Query() { skip, limit }: PaginationParams,
     @Query() searchParams: SearchParams,
+    @Request() req,
   ) {
     const [items, total] = await this.usersService.findAll(
       searchParams,
       skip,
       limit,
+      req,
     );
     return {
       items,
