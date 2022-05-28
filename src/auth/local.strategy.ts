@@ -26,6 +26,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
             throw new UnauthorizedException('account_is_disabled');
         }
 
+        if (user.isDeleted == true) {
+          throw new UnauthorizedException('account_is_deleted');
+        }
+
         return user;
     }
 }
