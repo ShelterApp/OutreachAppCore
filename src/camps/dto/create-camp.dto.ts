@@ -1,39 +1,66 @@
 import { Optional } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, MinLength, ValidateNested } from "class-validator";
-import { LocationDto } from "../../utils/dto/location.dto";
-import { User } from "../../users/schema/user.schema";
-import { Supply } from "src/supplies/schema/supply.schema";
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Supply } from 'src/supplies/schema/supply.schema';
+import { User } from '../../users/schema/user.schema';
+import { LocationDto } from '../../utils/dto/location.dto';
 
 export class CreatePeopleDto {
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty({ example: "Seven", description: 'Name of people', required: true })
-    name: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Seven',
+    description: 'Name of people',
+    required: true,
+  })
+  name: string;
 
-    @IsNumber()
-    @ApiProperty({ example: 18, description: 'Age', required: true })
-    age: number;
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ example: 18, description: 'Age', required: true })
+  age: number;
 
-    @IsString()
-    @ApiProperty({ example: "Male", description: 'Gender (Male, Female, Non-binary, Prefer to self-disclose, Prefer not to answer)', required: true })
-    gender: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Male',
+    description:
+      'Gender (Male, Female, Non-binary, Prefer to self-disclose, Prefer not to answer)',
+    required: true,
+  })
+  gender: string;
 
-    @IsString()
-    @IsOptional()
-    @ApiProperty({ example: "Asian", description: '"American Indian or Alaska Native", "Asian", "Black or African American", "Hispanic or Latino", "Native Hawaiian or Other Pacific Islander", "White"', required: false })
-    race: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Asian',
+    description:
+      '"American Indian or Alaska Native", "Asian", "Black or African American", "Hispanic or Latino", "Native Hawaiian or Other Pacific Islander", "White"',
+    required: false,
+  })
+  race: string;
 
-    @IsString()
-    @IsOptional()
-    @ApiProperty({ example: "No", description: 'Yes/No', required: false })
-    disabled: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'No', description: 'Yes/No', required: false })
+  disabled: string;
 
-    @IsString()
-    @IsOptional()
-    @ApiProperty({ example: "1 year", description: 'Less than an year,  1 year, 2 year', required: false })
-    unhouseSince: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: '1 year',
+    description: 'Less than an year,  1 year, 2 year',
+    required: false,
+  })
+  unhouseSince: string;
 }
 export class CreateCampDto {
     @IsString()
