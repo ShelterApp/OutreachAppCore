@@ -50,7 +50,7 @@ export class AuthService {
       phone: user.phone,
       id: user.id,
       userType: user.userType,
-      organizationId: user.organizationId,
+      organizationId: user.organizationId.toString(), // Hung edited
       regionId,
     };
     return {
