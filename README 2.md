@@ -30,9 +30,7 @@
 
 ```bash
 ### Switch to pre-defined version
-```
-nvm install && nvm use
-```
+$ nvm install && nvm use
 $ npm install
 ```
 
