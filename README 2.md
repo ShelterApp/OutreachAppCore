@@ -29,6 +29,10 @@
 ## Installation
 
 ```bash
+### Switch to pre-defined version
+```
+nvm install && nvm use
+```
 $ npm install
 ```
 
