@@ -14,6 +14,12 @@ production-build:
 	docker tag  outreach_app:$$(git rev-parse --short HEAD) shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
 	docker push shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
 
+production-build-amd64:
+	docker buildx build --platform linux/amd64 -f Dockerfile -t outreach_app:$$(git rev-parse --short HEAD) .
+	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
+	docker tag  outreach_app:$$(git rev-parse --short HEAD) shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
+	docker push shelterapp/outreach_app:v$$(git rev-parse --short HEAD)
+
 production-up:
 	git pull
 	docker login -u "$(DOCKER_HUB_USER)" -p "$(DOCKER_HUB_PASSWORD)"
