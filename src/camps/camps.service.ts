@@ -56,7 +56,7 @@ export class CampsService {
             path: 'updatedBy',
             select: 'name phone',
           })
-          .sort([sort])
+          .sort(sort)
           .skip(skip)
           .limit(limit),
         searchParams.lat && searchParams.lng
@@ -175,7 +175,7 @@ export class CampsService {
     if (undefined !== query.sortType && query.sortType == 'asc') {
       sortType = 1;
     }
-    sort = [sortBy, sortType];
+    sort[sortBy] = sortType;
     return sort;
   }
 }

@@ -41,7 +41,7 @@ export class AuditlogsService {
     const [result, total] = await Promise.all([
       this.auditlogModel
         .find(conditions)
-        .sort([['createdAt', -1]])
+        .sort({ createdAt: -1 })
         .populate({
           path: 'userId',
           select: 'name phone',
@@ -63,14 +63,14 @@ export class AuditlogsService {
     const [result, total] = await Promise.all([
       this.auditlogModel
         .find(conditions)
-        .sort([['createdAt', -1]])
-        .populate({ 
-          path: "userId",
-          select: 'name phone'
+        .sort({ createdAt: -1 })
+        .populate({
+          path: 'userId',
+          select: 'name phone',
         })
         .skip(skip)
         .limit(limit),
-      this.auditlogModel.count(conditions)
+      this.auditlogModel.count(conditions),
     ]);
 
     return {

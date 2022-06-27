@@ -24,12 +24,8 @@ export class RegionsService {
     const sort = this._buildSort({});
     const conditions = this._buildConditions(searchParams);
     const [result, total] = await Promise.all([
-      this.regionModel
-        .find(conditions)
-        .sort([sort])
-        .skip(skip)
-        .limit(limit),
-      this.regionModel.count(conditions)
+      this.regionModel.find(conditions).sort(sort).skip(skip).limit(limit),
+      this.regionModel.count(conditions),
     ]);
     return [result, total];
   }
@@ -95,7 +91,7 @@ export class RegionsService {
     let sort = {};
     let sortBy = undefined !== query.sortBy ? query.sortBy : 'createdAt';
     let sortType = undefined !== query.sortType ? query.sortType : '-1';
-    sort = [sortBy, sortType];
+    sort[sortBy] = sortType;
     return sort;
   }
 }

@@ -61,7 +61,7 @@ export class OrganizationsService {
     const [result, total] = await Promise.all([
       this.organizationModel
         .find(conditions)
-        .sort([sort])
+        .sort(sort)
         .skip(skip)
         .limit(limit),
       this.organizationModel.count(conditions),
@@ -158,7 +158,7 @@ export class OrganizationsService {
     let sort = {};
     let sortBy = undefined !== query.sortBy ? query.sortBy : 'createdAt';
     let sortType = undefined !== query.sortType ? query.sortType : '-1';
-    sort = [sortBy, sortType];
+    sort[sortBy] = sortType;
     return sort;
   }
 }

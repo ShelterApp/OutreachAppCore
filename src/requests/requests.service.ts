@@ -110,7 +110,7 @@ export class RequestsService {
     const [result, total] = await Promise.all([
       this.requestModel
         .find(conditions)
-        .sort([sort])
+        .sort(sort)
         .populate({
           path: 'createdBy',
           select: 'name phone',
@@ -156,7 +156,7 @@ export class RequestsService {
           status: RequestStatus.Claim,
           claimBy: userId,
         })
-        .sort([sort])
+        .sort(sort)
         .populate({
           path: 'createdBy',
           select: 'name phone',
@@ -348,7 +348,7 @@ export class RequestsService {
     let sort = {};
     let sortBy = undefined !== query.sortBy ? query.sortBy : 'createdAt';
     let sortType = undefined !== query.sortType ? query.sortType : '-1';
-    sort = [sortBy, sortType];
+    sort[sortBy] = sortType;
     return sort;
   }
 }

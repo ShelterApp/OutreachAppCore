@@ -33,12 +33,8 @@ export class SuppliesService {
     const sort = this._buildSort(filter);
     const conditions = this._buildConditions(filter);
     const [result, total] = await Promise.all([
-      this.supplyModel
-        .find(conditions)
-        .sort([sort])
-        .skip(skip)
-        .limit(limit),
-      this.supplyModel.count(conditions)
+      this.supplyModel.find(conditions).sort(sort).skip(skip).limit(limit),
+      this.supplyModel.count(conditions),
     ]);
 
     return [result, total];
@@ -93,7 +89,7 @@ export class SuppliesService {
     let sort = {};
     let sortBy = undefined !== query.sortBy ? query.sortBy : 'createdAt';
     let sortType = undefined !== query.sortType ? query.sortType : '-1';
-    sort = [sortBy, sortType];
+    sort[sortBy] = sortType;
     return sort;
   }
 }

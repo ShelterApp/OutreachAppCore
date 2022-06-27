@@ -16,12 +16,8 @@ export class PagesService {
 
   async findAll(skip = 0, limit = 50) {
     const [result, total] = await Promise.all([
-      this.pageModel
-        .find()
-        .sort([["createdAt", -1]])
-        .skip(skip)
-        .limit(limit),
-      this.pageModel.count()
+      this.pageModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      this.pageModel.count(),
     ]);
     return [result, total];
   }

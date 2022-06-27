@@ -73,7 +73,7 @@ export class CreateUserDto {
     description: 'Type of user',
     required: true,
   })
-  userType: string;
+  userType: string & UserRole;
 
   @IsNumber()
   @Type(() => Number)

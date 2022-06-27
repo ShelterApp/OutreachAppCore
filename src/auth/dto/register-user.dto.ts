@@ -9,6 +9,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
+import { UserRole, UserVerify } from 'src/enum';
 import { Region } from 'src/regions/schema/region.schema';
 import { Organization } from '../../organizations/schema/organization.schema';
 import { OrganizationValid } from '../../validation/organization-valid-rule.validate';
@@ -70,11 +71,11 @@ export class RegisterUserDto {
 
   @IsString()
   @IsOptional()
-  userType: String;
+  userType: String & UserRole;
 
   @IsNumber()
   @IsOptional()
-  isVerify: Number;
+  isVerify: Number & UserVerify;
 
   @IsOptional()
   organizationId: Organization;
