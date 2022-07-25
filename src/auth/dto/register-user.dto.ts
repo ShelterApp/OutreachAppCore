@@ -30,7 +30,6 @@ export class RegisterUserDto {
   name: string;
 
   @IsString()
-  @IsPhoneNumber('US')
   @ApiProperty({
     example: '099999999',
     description: 'The phone of person',

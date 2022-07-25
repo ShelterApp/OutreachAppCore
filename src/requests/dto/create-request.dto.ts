@@ -85,8 +85,6 @@ export class CreateRequestDto {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
-  @IsPhoneNumber('US')
   @ApiProperty({
     example: '0111999222',
     description: 'The phone of user request',

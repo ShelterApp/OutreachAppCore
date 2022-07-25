@@ -62,7 +62,6 @@ export class UpdateOriganizationDto {
   country: string;
 
   @IsString()
-  @IsPhoneNumber('US')
   @ApiProperty({
     example: '0987654321',
     description: 'The desc of origanization',
