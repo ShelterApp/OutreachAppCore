@@ -1,10 +1,9 @@
 import { IsNumber } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -28,35 +27,39 @@ export class CreateOriganizationDto {
   description: string;
 
   @IsOptional()
-  @ApiPropertyOptional({
+  @ApiProperty({
     type: [String],
     description: 'The addresses of origanization',
   })
   address: string[];
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'Covington',
     description: 'The city of origanization',
   })
   city: string;
 
   @IsNumber()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 12345,
     description: 'The post code of origanization',
   })
   postcode: number;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'Louisiana',
     description: 'The state of origanization',
   })
   state: string;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'United States',
     description: 'The country of origanization',
   })

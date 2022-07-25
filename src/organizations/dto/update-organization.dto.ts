@@ -1,9 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   MaxLength,
   MinLength,
@@ -27,7 +26,7 @@ export class UpdateOriganizationDto {
   description: string;
 
   @IsOptional()
-  @ApiPropertyOptional({
+  @ApiProperty({
     type: [String],
     description: 'The addresses of origanization',
   })
@@ -35,28 +34,31 @@ export class UpdateOriganizationDto {
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 'Covington',
     description: 'The city of origanization',
   })
   city: string;
 
   @IsNumber()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 12345,
     description: 'The post code of origanization',
   })
   postcode: number;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'Louisiana',
     description: 'The state of origanization',
   })
   state: string;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'United States',
     description: 'The country of origanization',
   })

@@ -6,7 +6,6 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsString,
 } from 'class-validator';
 import { Organization } from 'src/organizations/schema/organization.schema';

@@ -5,7 +5,6 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';

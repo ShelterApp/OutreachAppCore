@@ -1,6 +1,6 @@
 import { Optional } from "@nestjs/common";
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from "class-transformer";
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsMongoId,
   IsNotEmpty,
@@ -133,35 +133,39 @@ export class CreateCampDto {
   status: number;
 
   @IsOptional()
-  @ApiPropertyOptional({
+  @ApiProperty({
     type: [String],
     description: 'The addresses of origanization',
   })
   address: string[];
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'Covington',
     description: 'The city of origanization',
   })
   city: string;
 
   @IsNumber()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 12345,
     description: 'The post code of origanization',
   })
   postcode: number;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'Louisiana',
     description: 'The state of origanization',
   })
   state: string;
 
   @IsString()
-  @ApiPropertyOptional({
+  @IsOptional()
+  @ApiProperty({
     example: 'United States',
     description: 'The country of origanization',
   })
