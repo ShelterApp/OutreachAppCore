@@ -85,6 +85,7 @@ export class CreateRequestDto {
   email: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '0111999222',
     description: 'The phone of user request',
@@ -93,10 +94,10 @@ export class CreateRequestDto {
   phone: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     example: 'Any other details you would lie to add',
     description: 'Any other details you would lie to add',
-    required: true,
   })
   note: string;
 

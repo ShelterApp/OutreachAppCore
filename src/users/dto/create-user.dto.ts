@@ -33,6 +33,7 @@ export class CreateUserDto {
   name: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '099999999',
     description: 'The phone of person',

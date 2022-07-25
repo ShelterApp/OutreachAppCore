@@ -34,6 +34,7 @@ export class UpdateOriganizationDto {
   address: string[];
 
   @IsString()
+  @IsOptional()
   @ApiPropertyOptional({
     example: 'Covington',
     description: 'The city of origanization',
@@ -62,6 +63,7 @@ export class UpdateOriganizationDto {
   country: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '0987654321',
     description: 'The desc of origanization',

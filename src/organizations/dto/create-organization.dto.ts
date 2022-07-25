@@ -63,6 +63,7 @@ export class CreateOriganizationDto {
   country: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '0987654321',
     description: 'The desc of origanization',
