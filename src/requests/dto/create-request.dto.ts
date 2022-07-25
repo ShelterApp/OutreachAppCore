@@ -93,7 +93,6 @@ export class CreateRequestDto {
   phone: string;
 
   @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     example: 'Any other details you would lie to add',
     description: 'Any other details you would lie to add',
