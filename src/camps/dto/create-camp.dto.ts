@@ -147,13 +147,13 @@ export class CreateCampDto {
   })
   city: string;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
   @ApiProperty({
-    example: 12345,
+    example: '77066',
     description: 'The post code of origanization',
   })
-  postcode: number;
+  postcode: string;
 
   @IsString()
   @IsOptional()

@@ -8,6 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { isString } from 'lodash';
 import { User } from '../../users/schema/user.schema';
 import { LocationDto } from '../../utils/dto/location.dto';
 import { CreateCampDto, CreatePeopleDto } from './create-camp.dto';
@@ -97,13 +98,13 @@ export class UpdateCampDto {
   })
   city: string;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
   @ApiProperty({
-    example: 12345,
+    example: '77066',
     description: 'The post code of origanization',
   })
-  postcode: number;
+  postcode: string;
 
   @IsString()
   @IsOptional()
