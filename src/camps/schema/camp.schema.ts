@@ -37,55 +37,75 @@ export class People extends Document{
 export const PeopleSchema = SchemaFactory.createForClass(People);
 @Schema()
 export class Camp {
+  @Prop({ type: String, required: true })
+  name: string;
 
-    @Prop({type: String, required: true})
-    name: string;
+  @Prop({ type: String, required: false, default: null })
+  description: string;
 
-    @Prop({type: String, required: false, default: null})
-    description: string;
+  @Prop({ type: Number, required: false, default: 0 })
+  numOfPeople: number;
 
-    @Prop({type: Number, required: false, default: 0})
-    numOfPeople: number;
+  @Prop({
+    get: (numOfPet: number) => {
+      if (!numOfPet) {
+        return false;
+      }
+      return numOfPet > 0;
+    },
+  })
+  hasPet?: string;
 
-    @Prop({
-        get: (numOfPet: number) => {
-          if (!numOfPet) {
-            return false;
-          }
-          return numOfPet > 0;
-        },
-    })
-    hasPet?: string;
+  @Prop({ type: Number, required: false, default: 0 })
+  numOfPet: number;
 
-    @Prop({type: Number, required: false, default: 0})
-    numOfPet: number;
+  @Prop({ type: [PeopleSchema], required: false, default: null })
+  people: People[];
 
-    @Prop({ type: [PeopleSchema] , required: false, default: null })
-    people: People[];
+  @Prop({ type: Number, required: true })
+  type: CampType;
 
-    @Prop({type: Number, required: true})
-    type: CampType;
+  @Prop({ type: Number, default: 1 })
+  status: CampStatus;
 
-    @Prop({type: Number, default: 1})
-    status: CampStatus;
+  @Prop({ type: String, required: false, default: null })
+  address: string;
 
-    @Prop({ type: String, required: false, default: null })
-    address: string;
+  @Prop({ type: String, required: false, default: null })
+  city: string;
 
-    @Prop({type: LocationSchema, required: false})
-    location: Location
+  @Prop({ type: String, required: false, default: null })
+  postcode: string;
 
-    @Prop({ type: Date, default: Date.now() })
-    createdAt: Date;
+  @Prop({ type: String, required: false, default: null })
+  state: string;
 
-    @Prop({ type: Date, default: Date.now() })
-    updatedAt: Date;
+  @Prop({ type: String, required: false, default: null })
+  country: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
-    createdBy: User;
+  @Prop({ type: LocationSchema, required: false })
+  location: Location;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: false, default: null })
-    updatedBy: User;
+  @Prop({ type: Date, default: Date.now() })
+  createdAt: Date;
+
+  @Prop({ type: Date, default: Date.now() })
+  updatedAt: Date;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
+    required: true,
+  })
+  createdBy: User;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
+    required: false,
+    default: null,
+  })
+  updatedBy: User;
 }
 
 export const CampSchema = SchemaFactory.createForClass(Camp).plugin(softDeletePlugin);
